@@ -1,5 +1,33 @@
 # Application and Problem Space:
 
+## Development Setup
+
+Install dependencies from the repo root:
+
+```bash
+npm install
+```
+
+Run the frontend:
+
+```bash
+npm run dev:frontend
+```
+
+Run the backend:
+
+```bash
+npm run dev:backend
+```
+
+Build both apps:
+
+```bash
+npm run build
+```
+
+The frontend lives in `frontend/src`. The backend API lives in `backend/src` and includes a starter health endpoint at `/api/health`.
+
 Our group plans to develop a web application called Research Connect, a centralized platform designed to streamline the recruitment of participants for academic research studies. Currently, many researchers rely on physical posters distributed across university campuses to advertise their studies. Interested students must then contact researchers directly via email to obtain additional information, determine their eligibility, and schedule participation times. This process can be time-consuming and inefficient for both researchers and participants.
 
 Research Connect aims to simplify this workflow by providing a single platform where researchers can post study opportunities, manage participant applications, and communicate with prospective participants. Students can browse available studies, review eligibility requirements, sign up for participation, and track their upcoming commitments through the platform. Additionally, the platform would incorporate participant history and attendance tracking features, enabling researchers to assess participant reliability based on past sign-up and participation records.

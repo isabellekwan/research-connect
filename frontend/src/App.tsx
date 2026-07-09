@@ -1,9 +1,12 @@
+import { AnalyticsDashboard } from './features/analytics/AnalyticsDashboard';
+
 function App() {
   return (
-    <main className="flex min-h-screen justify-center items-center">
-      Hello World!
+    <main>
+      <h1>Research Connect</h1>
+      <AnalyticsDashboard />
     </main>
-  )
+  );
 }
 
-export default App
+export default App;

@@ -1,0 +1,36 @@
+.userMenu{
+    position:relative;
+}
+
+.user-initials{
+    border: 1px solid black;
+    border-radius: 50%;
+    width: 42px;
+    height: 42px;
+    cursor: pointer;
+}
+
+.user-popup{
+    position: absolute;
+    top: calc(100% + 14px);
+    right: 0;
+
+    width: max-content;
+    padding: 0.75rem;
+
+    display: flex;
+    flex-direction: column;
+    border: 1px solid #e5e7eb;
+    border-radius: 10px;
+}
+
+.user-popup-name{
+    color: Red;
+}
+
+.user-popup-logoutbtn,
+.user-popup-profilebtn{
+    display: block;
+    text-align: left;
+    width:100%;
+}

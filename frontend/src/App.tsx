@@ -1,7 +1,9 @@
+import Header from "./components/Header/Header"
+
 function App() {
   return (
-    <main className="flex min-h-screen justify-center items-center">
-      Hello World!
+    <main>
+      <Header/>
     </main>
   )
 }

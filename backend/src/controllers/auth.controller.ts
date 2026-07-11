@@ -2,7 +2,7 @@ import type { Request, Response } from "express";
 import { setUserRole } from "../models/user.model.js";
 import type { User, UserRole } from "../types/index.js";
 
-const FRONTEND_URL = process.env.FRONTEND_URL || "http://localhost:5173";
+const FRONTEND_URL = process.env.FRONTEND_URL || "http://localhost:5174";
 
 /** GET /auth/me — returns the current session user, or 401. */
 export function getCurrentUser(req: Request, res: Response) {
@@ -20,7 +20,13 @@ export function getCurrentUser(req: Request, res: Response) {
 export function handleGoogleCallback(req: Request, res: Response) {
   const user = req.user as User;
   const destination = user.role ? "/dashboard" : "/select-role";
-  res.redirect(`${FRONTEND_URL}${destination}`);
+  req.session.save((err) => {
+    if (err) {
+      console.error("Failed to save session after OAuth", err);
+      return res.status(500).json({ error: "Failed to complete login" });
+    }
+    res.redirect(`${FRONTEND_URL}${destination}`);
+  });
 }
 
 /** POST /auth/select-role — body: { role: "researcher" | "participant" } */

@@ -8,7 +8,7 @@ loadEnv({ path: new URL("../.env", import.meta.url) });
 const GOOGLE_CLIENT_ID = process.env.GOOGLE_CLIENT_ID;
 const GOOGLE_CLIENT_SECRET = process.env.GOOGLE_CLIENT_SECRET;
 const GOOGLE_CALLBACK_URL =
-  process.env.GOOGLE_CALLBACK_URL || "http://localhost:4000/auth/google/callback";
+  process.env.GOOGLE_CALLBACK_URL || "http://localhost:4100/auth/google/callback";
 
 if (!GOOGLE_CLIENT_ID || !GOOGLE_CLIENT_SECRET) {
   throw new Error(

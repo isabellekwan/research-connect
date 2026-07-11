@@ -7,10 +7,17 @@ export interface Study {
     view_count: number;
 }
 
+export interface QuestionOption {
+    id: string;
+    text: string;
+}
+
+export type QuestionType = 'text' | 'radio' | 'checkbox';
+
 export interface QualificationQuestion {
     id: string;
     question: string;
-    type: 'text' | 'radio' | 'checkbox';
-    options: string[];
+    type: QuestionType;
+    options: QuestionOption[];
     required_answer: string | string[];
 }

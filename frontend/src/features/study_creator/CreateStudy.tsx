@@ -22,10 +22,10 @@ function CreateStudy() {
         ]);
     }
 
-    function updateQuestion(
+    function updateQuestion<K extends keyof QualificationQuestion>(
         id: string,
-        field: keyof QualificationQuestion,
-        value: string | string[]
+        field: K,
+        value: QualificationQuestion[K]
     ) {
         setQuestions(
             questions.map((q) => (q.id === id ? { ...q, [field]: value } : q))

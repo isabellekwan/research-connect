@@ -3,56 +3,61 @@ import type { QualificationQuestion } from '../types/types';
 
 interface QualificationOptionsEditorProps {
     question: QualificationQuestion;
-    onChange: (id: string, field: keyof QualificationQuestion, value: string | string[]) => void;
+    onChange: <K extends keyof QualificationQuestion>(
+        id: string,
+        field: K,
+        value: QualificationQuestion[K]
+    ) => void;
 }
 
 function QualificationOptionsEditor({ question, onChange }: QualificationOptionsEditorProps) {
     const { id, type, options, required_answer } = question;
 
-    function updateOptionText(index: number, newText: string) {
-        const updated = [...options];
-        updated[index] = newText;
+    function updateOptionText(optionId: string, newText: string) {
+        const updated = options.map((opt) =>
+            opt.id === optionId ? { ...opt, text: newText } : opt
+        );
         onChange(id, 'options', updated);
     }
 
     function addOption() {
-        onChange(id, 'options', [...options, '']);
+        onChange(id, 'options', [...options, { id: crypto.randomUUID(), text: '' }]);
     }
 
-    function removeOption(index: number) {
-        const updated = options.filter((_, i) => i !== index);
+    function removeOption(optionId: string) {
+        const updated = options.filter((opt) => opt.id !== optionId);
         onChange(id, 'options', updated);
 
         // also clean up required_answer if the removed option was selected
-        if (type === 'radio' && required_answer === options[index]) {
+        if (type === 'radio' && required_answer === optionId) {
             onChange(id, 'required_answer', '');
         }
         if (type === 'checkbox' && Array.isArray(required_answer)) {
             onChange(
                 id,
                 'required_answer',
-                required_answer.filter((ans) => ans !== options[index])
+                required_answer.filter((ans) => ans !== optionId)
             );
         }
     }
 
-    function toggleCorrect(optionText: string) {
+    function toggleCorrect(optionId: string) {
         if (type === 'radio') {
-            onChange(id, 'required_answer', optionText);
+            onChange(id, 'required_answer', optionId);
         } else {
             const current = Array.isArray(required_answer) ? required_answer : [];
-            const updated = current.includes(optionText)
-                ? current.filter((ans) => ans !== optionText)
-                : [...current, optionText];
+            const updated = current.includes(optionId)
+                ? current.filter((ans) => ans !== optionId)
+                : [...current, optionId];
             onChange(id, 'required_answer', updated);
         }
     }
 
-    function isChecked(optionText: string) {
+    function isChecked(optionId: string) {
         if (type === 'radio') {
-            return required_answer === optionText;
+            return required_answer === optionId;
         }
-        return Array.isArray(required_answer) && required_answer.includes(optionText);
+        return Array.isArray(required_answer) && required_answer.includes(optionId);
     }
 
     return (
@@ -66,19 +71,19 @@ function QualificationOptionsEditor({ question, onChange }: QualificationOptions
                     <input
                         type={type === 'radio' ? 'radio' : 'checkbox'}
                         name={`correct-${id}`}
-                        checked={isChecked(option)}
-                        onChange={() => toggleCorrect(option)}
+                        checked={isChecked(option.id)}
+                        onChange={() => toggleCorrect(option.id)}
                     />
                     <input
                         type="text"
                         placeholder={`Option ${index + 1}`}
-                        value={option}
-                        onChange={(e) => updateOptionText(index, e.target.value)}
+                        value={option.text}
+                        onChange={(e) => updateOptionText(option.id, e.target.value)}
                         className="options-editor__text-input"
                     />
                     <button
                         type="button"
-                        onClick={() => removeOption(index)}
+                        onClick={() => removeOption(option.id)}
                         className="options-editor__remove-btn"
                     >
                         ✕

@@ -1,10 +1,14 @@
 import './QualificationQuestionCreator.css';
 import QualificationOptionsEditor from './QualificationOptionsEditor';
-import type { QualificationQuestion } from '../types/types';
+import type { QualificationQuestion, QuestionType } from '../types/types';
 
 interface CreateQualificationQuestionProps {
     question: QualificationQuestion;
-    onChange: (id: string, field: keyof QualificationQuestion, value: string | string[]) => void;
+    onChange: <K extends keyof QualificationQuestion>(
+        id: string,
+        field: K,
+        value: QualificationQuestion[K]
+    ) => void;
     onDelete: (id: string) => void;
 }
 
@@ -22,7 +26,7 @@ function QualificationQuestionCreator({ question, onChange, onDelete }: CreateQu
 
                 <select
                     value={question.type}
-                    onChange={(e) => onChange(question.id, 'type', e.target.value)}
+                    onChange={(e) => onChange(question.id, 'type', e.target.value as QuestionType)}
                     className="qual-question__type-select"
                 >
                     <option value="text">Text</option>

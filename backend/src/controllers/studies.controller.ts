@@ -33,7 +33,7 @@ export async function getCategories(_req: Request, res: Response) {
 
 /** GET /studies/:id */
 export async function getStudy(req: Request, res: Response) {
-  const study = await getStudyById(req.params.id);
+  const study = await getStudyById(req.params.id as string);
   if (!study) return res.status(404).json({ error: "Study not found" });
 
   const screeningQuestions = await getScreeningQuestions(study.id);
@@ -43,7 +43,7 @@ export async function getStudy(req: Request, res: Response) {
 /** POST /studies/:id/apply — body: { screeningAnswers: { questionId, answer }[] } */
 export async function applyToStudyHandler(req: Request, res: Response) {
   const user = req.user as User;
-  const studyId = req.params.id;
+  const studyId = req.params.id as string;
   const { screeningAnswers = [] } = req.body as {
     screeningAnswers?: { questionId: string; answer: boolean }[];
   };

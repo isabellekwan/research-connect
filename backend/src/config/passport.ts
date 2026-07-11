@@ -1,6 +1,9 @@
+import { config as loadEnv } from "dotenv";
 import passport from "passport";
 import { Strategy as GoogleStrategy, type Profile } from "passport-google-oauth20";
 import { findOrCreateUserFromGoogleProfile, findUserById } from "../models/user.model.js";
+
+loadEnv({ path: new URL("../.env", import.meta.url) });
 
 const GOOGLE_CLIENT_ID = process.env.GOOGLE_CLIENT_ID;
 const GOOGLE_CLIENT_SECRET = process.env.GOOGLE_CLIENT_SECRET;
@@ -8,9 +11,8 @@ const GOOGLE_CALLBACK_URL =
   process.env.GOOGLE_CALLBACK_URL || "http://localhost:4000/auth/google/callback";
 
 if (!GOOGLE_CLIENT_ID || !GOOGLE_CLIENT_SECRET) {
-  // Fail loudly at boot rather than silently rejecting every login attempt.
   throw new Error(
-    "GOOGLE_CLIENT_ID and GOOGLE_CLIENT_SECRET must be set (see .env.example)"
+    "GOOGLE_CLIENT_ID and GOOGLE_CLIENT_SECRET must be set"
   );
 }
 

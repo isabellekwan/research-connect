@@ -9,6 +9,7 @@ export interface User {
   role: UserRole | null;
   created_at: string;
   updated_at: string;
+  [key: string]: unknown;
 }
 
 export type StudyStatus = "draft" | "open" | "closed" | "archived";
@@ -21,15 +22,17 @@ export interface Study {
   category: string;
   location: string | null;
   is_remote: boolean;
-  compensation: string | null; // numeric comes back as string from pg
+  compensation: string | null;
   status: StudyStatus;
   created_at: string;
   updated_at: string;
+  [key: string]: unknown;
 }
 
 export interface StudyWithResearcher extends Study {
   researcher_name: string;
   application_status?: ApplicationStatus | null; // populated per-viewer when listing
+  [key: string]: unknown;
 }
 
 export type ApplicationStatus = "pending" | "accepted" | "rejected" | "withdrawn";
@@ -42,6 +45,7 @@ export interface StudyApplication {
   screening_answers: { questionId: string; answer: boolean }[];
   created_at: string;
   updated_at: string;
+  [key: string]: unknown;
 }
 
 export interface ScreeningQuestion {
@@ -50,6 +54,7 @@ export interface ScreeningQuestion {
   question_text: string;
   qualifying_answer: boolean;
   order_index: number;
+  [key: string]: unknown;
 }
 
 export interface StudyFilters {
@@ -59,6 +64,7 @@ export interface StudyFilters {
   status?: StudyStatus;
   page?: number;
   pageSize?: number;
+  [key: string]: unknown;
 }
 
 // Augment express-session with the fields we actually store.

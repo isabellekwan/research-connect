@@ -1,11 +1,11 @@
 import type { NextFunction, Request, Response } from "express";
-import type { User, UserRole } from "../types/index.js";
+import type { User as AppUser, UserRole } from "../types/index.js";
 
 // Augment Express.User so req.user is typed as our own User everywhere.
 declare global {
   // eslint-disable-next-line @typescript-eslint/no-namespace
   namespace Express {
-    interface User extends import("../types/index.js").User {}
+    interface User extends AppUser {}
   }
 }
 
@@ -18,7 +18,7 @@ export function isAuthenticated(req: Request, res: Response, next: NextFunction)
 
 /** Requires the user to have completed role selection (any role). */
 export function hasRole(req: Request, res: Response, next: NextFunction) {
-  const user = req.user as User | undefined;
+  const user = req.user as AppUser | undefined;
   if (!user?.role) {
     return res.status(403).json({ error: "Account role not set. Complete sign-up first." });
   }
@@ -28,7 +28,7 @@ export function hasRole(req: Request, res: Response, next: NextFunction) {
 /** Restricts a route to one or more specific roles. */
 export function requireRole(...roles: UserRole[]) {
   return (req: Request, res: Response, next: NextFunction) => {
-    const user = req.user as User | undefined;
+    const user = req.user as AppUser | undefined;
     if (!user?.role) {
       return res.status(403).json({ error: "Account role not set. Complete sign-up first." });
     }

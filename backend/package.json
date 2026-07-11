@@ -5,9 +5,9 @@
   "main": "dist/index.js",
   "type": "module",
   "scripts": {
-    "dev": "tsx watch src/index.ts",
+    "dev": "tsx watch src/app.ts",
     "build": "tsc",
-    "start": "node dist/index.js"
+    "start": "node dist/app.js"
   },
   "keywords": [],
   "author": "",

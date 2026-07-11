@@ -1,18 +1,9 @@
-/**
- * INTEGRATION SNIPPET — not a standalone entrypoint.
- *
- * You said the base app is already running, so rather than hand you a
- * competing app.ts, this shows exactly what to add to your existing
- * Express setup (imports, middleware order, and route mounting).
- * Copy the relevant pieces into your real bootstrap file.
- */
-
 import express from "express";
 import session from "express-session";
 import cors from "cors";
-import passport from "./config/passport";
-import authRoutes from "./routes/auth.routes";
-import studiesRoutes from "./routes/studies.routes";
+import passport from "./config/passport.js";
+import authRoutes from "./routes/auth.routes.js";
+import studiesRoutes from "./routes/studies.routes.js";
 
 const app = express();
 
@@ -46,5 +37,11 @@ app.use(passport.session());
 // 3. Mount feature routes.
 app.use("/auth", authRoutes);
 app.use("/studies", studiesRoutes);
+
+const PORT = Number(process.env.PORT || 4000);
+
+app.listen(PORT, () => {
+  console.log(`Server running on http://localhost:${PORT}`);
+});
 
 export default app;

@@ -1,4 +1,7 @@
+import { config as loadEnv } from "dotenv";
 import { Pool, type PoolConfig } from "pg";
+
+loadEnv({ path: new URL("../.env", import.meta.url) });
 
 const poolConfig: PoolConfig = {
   host: process.env.PGHOST,

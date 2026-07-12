@@ -1,5 +1,5 @@
 import { useState } from 'react';
-import type { Study } from '../mockData';
+import type { Study } from '../types/mockData';
 
 interface StudySelectorProps {
     studies: Study[];

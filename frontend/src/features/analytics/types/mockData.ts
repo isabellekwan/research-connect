@@ -1,4 +1,4 @@
-import type { ViewStat } from "./api/analyticsApi";
+import type { ViewStat } from "../api/analyticsApi";
 
 export const mockStudyViews = [
     { day: 'Mon', views: 45 },

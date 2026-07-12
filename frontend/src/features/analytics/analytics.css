@@ -10,7 +10,7 @@
 }
 
 /* Dark Theme Colors */
-@media (prefers-color-scheme: dark) {
+/* @media (prefers-color-scheme: dark) {
     :root {
         --bg-main: #0B1015;
         --bg-card: #111820;
@@ -20,7 +20,7 @@
         --accent-main: #689F8B;
         --tooltip-bg: rgba(11, 16, 21, 0.95);
     }
-}
+} */
 
 /* Applying Variables to the Layout */
 .dashboard-container {

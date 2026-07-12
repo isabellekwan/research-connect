@@ -3,7 +3,7 @@ import { StudySelector } from './components/StudySelector';
 import { EnrollmentBarChart } from './components/EnrollmentBarChart';
 import { ViewsLineChart } from './components/ViewsLineChart';
 import { fetchEnrollmentStats, type EnrollmentStat } from './api/analyticsApi';
-import { mockStudies, aggregateStudyViews, generateMockStudyViews } from './mockData';
+import { mockStudies, aggregateStudyViews, generateMockStudyViews } from './types/mockData';
 import './Analytics.css'; 
 
 export const AnalyticsDashboard = () => {

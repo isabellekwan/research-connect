@@ -1,0 +1,51 @@
+services:
+  db:
+    image: postgres:16-alpine
+    container_name: research-connect-db
+    environment:
+      POSTGRES_DB: researchconnect
+      POSTGRES_USER: researchconnect
+      POSTGRES_PASSWORD: rcpassword
+    ports:
+      - "5432:5432"
+    volumes:
+      - pgdata:/var/lib/postgresql/data
+      - ./backend/src/db/schema.sql:/docker-entrypoint-initdb.d/01-schema.sql:ro
+
+  backend:
+    build:
+      context: .
+      dockerfile: backend/Dockerfile
+    container_name: research-connect-backend
+    env_file:
+      - ./backend/src/.env
+    environment:
+      NODE_ENV: development
+      PORT: 4000
+      PGHOST: db
+      PGPORT: 5432
+      PGUSER: researchconnect
+      PGPASSWORD: rcpassword
+      PGDATABASE: researchconnect
+      PGSSL: false
+      SESSION_SECRET: dev-session-secret
+      FRONTEND_URL: http://localhost:5174
+    depends_on:
+      - db
+    ports:
+      - "4100:4000"
+
+  frontend:
+    build:
+      context: .
+      dockerfile: frontend/Dockerfile
+    container_name: research-connect-frontend
+    environment:
+      VITE_API_URL: http://localhost:4100
+    depends_on:
+      - backend
+    ports:
+      - "5174:5173"
+
+volumes:
+  pgdata:

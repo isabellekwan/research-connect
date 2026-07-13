@@ -11,5 +11,20 @@
     "build": "npm --workspaces run build",
     "build:frontend": "npm --workspace frontend run build",
     "build:backend": "npm --workspace backend run build"
+  },
+  "dependencies": {
+    "cors": "^2.8.6",
+    "express": "^5.2.1",
+    "express-session": "^1.19.0",
+    "passport": "^0.7.0",
+    "passport-google-oauth20": "^2.0.0",
+    "pg": "^8.22.0",
+    "react-router-dom": "^7.18.1"
+  },
+  "devDependencies": {
+    "@types/cors": "^2.8.19",
+    "@types/express-session": "^1.19.0",
+    "@types/passport-google-oauth20": "^2.0.17",
+    "@types/pg": "^8.20.0"
   }
 }

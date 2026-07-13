@@ -26,6 +26,12 @@ Build both apps:
 npm run build
 ```
 
+Run everything with Docker Compose:
+
+```bash
+docker compose up --build
+```
+
 The frontend lives in `frontend/src`. The backend API lives in `backend/src` and includes a starter health endpoint at `/api/health`.
 
 Our group plans to develop a web application called Research Connect, a centralized platform designed to streamline the recruitment of participants for academic research studies. Currently, many researchers rely on physical posters distributed across university campuses to advertise their studies. Interested students must then contact researchers directly via email to obtain additional information, determine their eligibility, and schedule participation times. This process can be time-consuming and inefficient for both researchers and participants.

@@ -1,10 +1,10 @@
-import { useState, useEffect } from 'react';
-import { StudySelector } from './components/StudySelector';
-import { EnrollmentBarChart } from './components/EnrollmentBarChart';
-import { ViewsLineChart } from './components/ViewsLineChart';
+import { useEffect, useState } from 'react';
+import '../analytics/analytics.css';
 import { fetchEnrollmentStats, type EnrollmentStat } from './api/analyticsApi';
-import { mockStudies, aggregateStudyViews, generateMockStudyViews } from './types/mockData';
-import './Analytics.css'; 
+import { EnrollmentBarChart } from './components/EnrollmentBarChart';
+import { StudySelector } from './components/StudySelector';
+import { ViewsLineChart } from './components/ViewsLineChart';
+import { aggregateStudyViews, generateMockStudyViews, mockStudies } from './types/mockData';
 
 export const AnalyticsDashboard = () => {
     // Set up state to hold the real data

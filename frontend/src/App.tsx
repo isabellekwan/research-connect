@@ -1,32 +1,42 @@
-import { BrowserRouter, Navigate, Route, Routes } from "react-router-dom";
+import { BrowserRouter, Link, Navigate, Route, Routes } from "react-router-dom";
 import { AuthProvider } from "./context/AuthContext";
 import { useAuth } from "./hooks/useAuth.js";
 import { ProtectedRoute } from "./components/ProtectedRoute";
 import { Login } from "./pages/Login";
 import { SelectRole } from "./pages/SelectRole";
 import { ParticipantDashboard } from "./pages/ParticipantDashboard";
+import { AnalyticsDashboard } from "./features/analytics/AnalyticsDashboard";
 
-/**
- * Decides where "/" sends the user once we know their auth state:
- *   - not logged in            -> /login
- *   - logged in, no role yet   -> /select-role
- *   - logged in, has a role    -> /dashboard
- * Shown briefly on every fresh page load while /auth/me resolves.
- */
 function Root() {
   const { user, isLoading } = useAuth();
 
   if (isLoading) {
-    return (
-      <div className="flex h-screen items-center justify-center bg-[#F6F5F1] text-sm text-slate-500">
-        Loading ResearchConnect…
-      </div>
-    );
+    return <div>Loading ResearchConnect…</div>;
   }
 
   if (!user) return <Navigate to="/login" replace />;
   if (!user.role) return <Navigate to="/select-role" replace />;
-  return <Navigate to="/dashboard" replace />;
+
+  return (
+    <Navigate
+      to={user.role === "researcher" ? "/researcher" : "/dashboard"}
+      replace
+    />
+  );
+}
+
+function ResearcherDashboard() {
+  return (
+    <main className="flex min-h-screen items-center justify-center">
+      <section className="text-center">
+        <h1 className="text-2xl font-semibold">Researcher Dashboard</h1>
+        <p className="mt-2">Manage your studies and review their performance.</p>
+        <Link to="/analytics" className="mt-4 inline-block">
+          View Analytics
+        </Link>
+      </section>
+    </main>
+  );
 }
 
 function AppRoutes() {
@@ -44,9 +54,25 @@ function AppRoutes() {
           </ProtectedRoute>
         }
       />
-      {/* TODO: /dashboard/researcher once that feature starts */}
 
-      {/* Unknown paths fall back through Root's auth-aware redirect logic. */}
+      <Route
+        path="/researcher"
+        element={
+          <ProtectedRoute requireRole="researcher">
+            <ResearcherDashboard />
+          </ProtectedRoute>
+        }
+      />
+
+      <Route
+        path="/analytics"
+        element={
+          <ProtectedRoute requireRole="researcher">
+            <AnalyticsDashboard />
+          </ProtectedRoute>
+        }
+      />
+
       <Route path="*" element={<Root />} />
     </Routes>
   );

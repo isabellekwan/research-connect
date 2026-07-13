@@ -1,0 +1,7 @@
+.navigation{
+    display:flex;
+    align-items: center;
+    gap:2rem;
+    margin-right: auto;
+    margin-left: 2rem;
+}

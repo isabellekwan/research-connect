@@ -2,6 +2,7 @@ import { BrowserRouter, Link, Navigate, Route, Routes } from "react-router-dom";
 import { AuthProvider } from "./context/AuthContext";
 import { useAuth } from "./hooks/useAuth.js";
 import { ProtectedRoute } from "./components/ProtectedRoute";
+import Header from "./components/Header/Header";
 import { Login } from "./pages/Login";
 import { SelectRole } from "./pages/SelectRole";
 import { ParticipantDashboard } from "./pages/ParticipantDashboard";
@@ -97,6 +98,7 @@ function App() {
   return (
     <AuthProvider>
       <BrowserRouter>
+        <Header />
         <AppRoutes />
       </BrowserRouter>
     </AuthProvider>

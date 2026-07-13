@@ -5,7 +5,7 @@ function App() {
   return (
     <BrowserRouter>
       <nav style={{ padding: '12px' }}>
-        <Link to="/">Home</Link> | <Link to="/studies/new">Create Study</Link>
+        <Link to="/">Home</Link> | <Link to="/analytics">Analytics</Link>
       </nav>
 
       <Routes>
@@ -18,7 +18,7 @@ function App() {
           }
         />
         
-        <Route path="/studies/new" element={<AnalyticsDashboard />} />
+        <Route path="/analytics" element={<AnalyticsDashboard />} />
       </Routes>
     </BrowserRouter>
   );

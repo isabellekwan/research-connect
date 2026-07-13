@@ -22,16 +22,32 @@ export function SelectRole() {
   const [error, setError] = useState<string | null>(null);
   const navigate = useNavigate();
 
-  if (!isLoading && !user) return <Navigate to="/login" replace />;
-  if (!isLoading && user?.role) return <Navigate to="/dashboard" replace />;
+  if (isLoading) {
+    return <div>Loading ResearchConnect…</div>;
+  }
+
+  if (!user) {
+    return <Navigate to="/login" replace />;
+  }
+
+  const currentRole = user.role;
+
+  if (currentRole === "researcher") {
+    return <Navigate to="/researcher" replace />;
+  }
+
+  if (currentRole === "participant") {
+    return <Navigate to="/dashboard" replace />;
+  }
 
   async function handleSelect(role: UserRole) {
     setPendingRole(role);
     setError(null);
     try {
       await selectRole(role);
-      navigate("/dashboard", { replace: true });
+      navigate("/", { replace: true });
     } catch (err) {
+      console.error(err);
       setError("Something went wrong setting your role. Please try again.");
     } finally {
       setPendingRole(null);

@@ -1,5 +1,5 @@
-import { Navigate } from "react-router-dom";
 import type { ReactNode } from "react";
+import { Navigate } from "react-router-dom";
 import { useAuth } from "../hooks/useAuth";
 import type { UserRole } from "../types";
 
@@ -28,7 +28,15 @@ export function ProtectedRoute({ children, requireRole }: ProtectedRouteProps) {
   }
 
   if (requireRole && user.role !== requireRole) {
-    return <Navigate to="/dashboard" replace />;
+    if (user.role === "researcher") {
+      return <Navigate to="/researcher" replace />;
+    }
+
+    if (user.role === "participant") {
+      return <Navigate to="/dashboard" replace />;
+    }
+
+    return <Navigate to="/select-role" replace />;
   }
 
   return <>{children}</>;

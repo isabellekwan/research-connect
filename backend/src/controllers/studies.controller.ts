@@ -5,8 +5,62 @@ import {
   getStudyById,
   listDistinctCategories,
   listStudiesForParticipant,
+  createStudy,
 } from "../models/study.model.js";
 import type { StudyFilters, User } from "../types/index.js";
+
+/** POST /studies — creates a study owned by the logged-in researcher. */
+export async function createStudyHandler(req: Request, res: Response) {
+  const user = req.user as User;
+  const body = req.body as Record<string, unknown>;
+  const title = typeof body.title === "string" ? body.title.trim() : "";
+  const description = typeof body.description === "string" ? body.description.trim() : "";
+  const category = typeof body.category === "string" ? body.category.trim() : "";
+  const location = typeof body.location === "string" ? body.location.trim() : "";
+  const isRemote = body.isRemote === true;
+  const status = body.status === "draft" ? "draft" : body.status === "open" ? "open" : null;
+  const compensation = body.compensation;
+  const questions = Array.isArray(body.screeningQuestions) ? body.screeningQuestions : [];
+
+  if (!title || !description || !category) {
+    return res.status(400).json({ error: "Title, description, and category are required" });
+  }
+  if (!status) return res.status(400).json({ error: "Status must be draft or open" });
+  if (
+    compensation !== null &&
+    (typeof compensation !== "number" || !Number.isFinite(compensation) || compensation < 0)
+  ) {
+    return res.status(400).json({ error: "Compensation must be a non-negative number" });
+  }
+  if (questions.length > 20) {
+    return res.status(400).json({ error: "A study can have at most 20 screening questions" });
+  }
+
+  const screeningQuestions: { questionText: string; qualifyingAnswer: boolean }[] = [];
+  for (const item of questions) {
+    if (!item || typeof item !== "object") {
+      return res.status(400).json({ error: "Invalid screening question" });
+    }
+    const question = item as Record<string, unknown>;
+    const questionText = typeof question.questionText === "string" ? question.questionText.trim() : "";
+    if (!questionText || typeof question.qualifyingAnswer !== "boolean") {
+      return res.status(400).json({ error: "Each screening question needs text and a qualifying answer" });
+    }
+    screeningQuestions.push({ questionText, qualifyingAnswer: question.qualifyingAnswer });
+  }
+
+  const study = await createStudy(user.id, {
+    title,
+    description,
+    category,
+    location: isRemote ? "Remote" : location || null,
+    isRemote,
+    compensation: compensation as number | null,
+    status,
+    screeningQuestions,
+  });
+  res.status(201).json({ study });
+}
 
 /** GET /studies?category=&remote=&search=&page=&pageSize= */
 export async function listStudies(req: Request, res: Response) {

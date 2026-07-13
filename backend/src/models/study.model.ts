@@ -1,15 +1,61 @@
-import { query } from "../config/db.js";
+import { pool, query } from "../config/db.js";
 import type {
   ApplicationStatus,
   ScreeningQuestion,
   StudyApplication,
   StudyFilters,
   StudyWithResearcher,
+  CreateStudyInput,
+  Study,
 } from "../types/index.js";
 
 interface ListResult {
   studies: StudyWithResearcher[];
   total: number;
+}
+
+export async function createStudy(
+  researcherId: string,
+  input: CreateStudyInput
+): Promise<Study> {
+  const client = await pool.connect();
+  try {
+    await client.query("BEGIN");
+    const { rows } = await client.query<Study>(
+      `INSERT INTO studies
+        (researcher_id, title, description, category, location, is_remote, compensation, status)
+       VALUES ($1, $2, $3, $4, $5, $6, $7, $8)
+       RETURNING *`,
+      [
+        researcherId,
+        input.title,
+        input.description,
+        input.category,
+        input.location,
+        input.isRemote,
+        input.compensation,
+        input.status,
+      ]
+    );
+    const study = rows[0];
+
+    for (const [index, question] of input.screeningQuestions.entries()) {
+      await client.query(
+        `INSERT INTO screening_questions
+          (study_id, question_text, qualifying_answer, order_index)
+         VALUES ($1, $2, $3, $4)`,
+        [study.id, question.questionText, question.qualifyingAnswer, index]
+      );
+    }
+
+    await client.query("COMMIT");
+    return study;
+  } catch (error) {
+    await client.query("ROLLBACK");
+    throw error;
+  } finally {
+    client.release();
+  }
 }
 
 /**

@@ -1,23 +1,19 @@
-export interface Study {
-    id: string;
-    researcher_id: string;
-    title: string;
-    reward_amount: number;
-    area_location: string;
-    view_count: number;
-}
-
-export interface QuestionOption {
-    id: string;
-    text: string;
-}
-
-export type QuestionType = 'text' | 'radio' | 'checkbox';
-
 export interface QualificationQuestion {
-    id: string;
-    question: string;
-    type: QuestionType;
-    options: QuestionOption[];
-    required_answer: string | string[];
+  id: string;
+  question: string;
+  qualifyingAnswer: boolean;
+}
+
+export interface CreateStudyPayload {
+  title: string;
+  description: string;
+  category: string;
+  location: string;
+  isRemote: boolean;
+  compensation: number | null;
+  status: "draft" | "open";
+  screeningQuestions: {
+    questionText: string;
+    qualifyingAnswer: boolean;
+  }[];
 }

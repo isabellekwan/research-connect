@@ -1,8 +1,10 @@
-import { Link } from "react-router-dom";
+import { Link, useLocation } from "react-router-dom";
 import { useAuth } from "../hooks/useAuth";
 
 export function ResearcherDashboard() {
   const { user, logout } = useAuth();
+  const location = useLocation();
+  const message = (location.state as { message?: string } | null)?.message;
 
   return (
     <main className="min-h-screen bg-[#F6F5F1] p-6">
@@ -14,6 +16,11 @@ export function ResearcherDashboard() {
           </div>
           <button onClick={() => logout()} className="text-sm font-medium text-slate-500 hover:text-slate-700">Sign out</button>
         </div>
+        {message && (
+          <p className="mt-5 rounded-md border border-emerald-200 bg-emerald-50 px-4 py-3 text-sm text-emerald-700">
+            {message}
+          </p>
+        )}
          <section className="rounded-lg border border-slate-200 p-6 mt-5">
           <h2 className="font-semibold text-slate-900">Create Study</h2>
           <p className="mt-1 text-sm text-slate-500">

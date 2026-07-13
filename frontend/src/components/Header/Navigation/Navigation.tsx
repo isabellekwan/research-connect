@@ -13,7 +13,7 @@ const participantLinks: NavLink[] = [
 
 const researcherLinks: NavLink[] = [
     {label:"My Studies", path:"/researcher/studies"},
-    {label:"Create Study", path:"/researcher/studies/new"},
+    {label:"Create Study", path:"/studies/new"},
 ]
 
 const navLinks : NavigationConfig = {

@@ -67,6 +67,20 @@ export interface StudyFilters {
   [key: string]: unknown;
 }
 
+export interface CreateStudyInput {
+  title: string;
+  description: string;
+  category: string;
+  location: string | null;
+  isRemote: boolean;
+  compensation: number | null;
+  status: "draft" | "open";
+  screeningQuestions: {
+    questionText: string;
+    qualifyingAnswer: boolean;
+  }[];
+}
+
 // Augment express-session with the fields we actually store.
 declare module "express-session" {
   interface SessionData {

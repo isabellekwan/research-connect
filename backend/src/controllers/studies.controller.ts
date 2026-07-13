@@ -1,11 +1,12 @@
 import type { Request, Response } from "express";
 import {
   applyToStudy,
+  createStudy,
   getScreeningQuestions,
   getStudyById,
   listDistinctCategories,
   listStudiesForParticipant,
-  createStudy,
+  listStudiesForResearcher,
 } from "../models/study.model.js";
 import type { StudyFilters, User } from "../types/index.js";
 
@@ -110,4 +111,11 @@ export async function applyToStudyHandler(req: Request, res: Response) {
 
   const application = await applyToStudy(studyId, user.id, screeningAnswers);
   res.status(201).json({ application });
+}
+
+export async function listResearcherStudies(req: Request, res: Response){
+  const user = req.user as User;
+  const studies = await listStudiesForResearcher(user.id);
+
+  res.json({ studies });
 }

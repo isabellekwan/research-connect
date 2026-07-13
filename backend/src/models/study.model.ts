@@ -1,12 +1,12 @@
 import { pool, query } from "../config/db.js";
 import type {
   ApplicationStatus,
+  CreateStudyInput,
   ScreeningQuestion,
+  Study,
   StudyApplication,
   StudyFilters,
   StudyWithResearcher,
-  CreateStudyInput,
-  Study,
 } from "../types/index.js";
 
 interface ListResult {
@@ -182,4 +182,18 @@ export async function applyToStudy(
     [studyId, participantId, status, JSON.stringify(screeningAnswers)]
   );
   return rows[0];
+}
+
+export async function listStudiesForResearcher(
+  researcher_id:string
+){
+  const { rows } = await query<Study>(
+    `SELECT *
+     FROM studies
+     WHERE researcher_id = $1
+     ORDER BY created_at DESC`,
+    [researcher_id]
+  );
+
+  return rows;
 }

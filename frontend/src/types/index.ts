@@ -14,7 +14,7 @@ export type ApplicationStatus = "pending" | "accepted" | "rejected" | "withdrawn
 export interface Study {
   id: string;
   researcher_id: string;
-  researcher_name: string;
+  researcher_name?: string;
   title: string;
   description: string;
   category: string;
@@ -22,7 +22,7 @@ export interface Study {
   is_remote: boolean;
   compensation: string | null;
   status: StudyStatus;
-  application_status: ApplicationStatus | null;
+  application_status?: ApplicationStatus | null;
   created_at: string;
 }
 

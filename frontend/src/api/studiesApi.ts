@@ -1,6 +1,6 @@
-import { apiRequest } from "./client";
-import type { ScreeningQuestion, Study, StudyFilterState, StudyListResponse } from "../types";
 import type { CreateStudyPayload } from "../features/study_creator/types/types";
+import type { ScreeningQuestion, Study, StudyFilterState, StudyListResponse } from "../types";
+import { apiRequest } from "./client";
 
 function buildQuery(filters: StudyFilterState): string {
   const params = new URLSearchParams();
@@ -13,6 +13,12 @@ function buildQuery(filters: StudyFilterState): string {
 
 export function fetchStudies(filters: StudyFilterState) {
   return apiRequest<StudyListResponse>(`/studies?${buildQuery(filters)}`);
+}
+
+export function fetchResearcherStudies() {
+  return apiRequest<{ studies: Study[] }>(
+    "/studies/researcher"
+  );
 }
 
 export function createStudy(payload: CreateStudyPayload) {

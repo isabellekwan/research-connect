@@ -1,4 +1,5 @@
 import { Link, useLocation } from "react-router-dom";
+import { ResearcherStudies } from "../components/ResearcherStudies";
 import { useAuth } from "../hooks/useAuth";
 
 export function ResearcherDashboard() {
@@ -39,6 +40,7 @@ export function ResearcherDashboard() {
           <p className="mt-1 text-sm text-slate-500">Review views and enrollment activity for your posted studies.</p>
           <Link to="/analytics" className="mt-4 inline-block rounded-md bg-[#1F6F6B] px-4 py-2 text-sm font-medium text-white hover:bg-[#195954]">View analytics</Link>
         </section>
+         <ResearcherStudies />
       </div>
     </main>
   );

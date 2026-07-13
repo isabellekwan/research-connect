@@ -6,6 +6,7 @@ import { Login } from "./pages/Login";
 import { SelectRole } from "./pages/SelectRole";
 import { ParticipantDashboard } from "./pages/ParticipantDashboard";
 import { AnalyticsDashboard } from "./features/analytics/AnalyticsDashboard";
+import CreateStudy from "./features/study_creator/CreateStudy";
 
 function Root() {
   const { user, isLoading } = useAuth();
@@ -30,8 +31,13 @@ function ResearcherDashboard() {
     <main className="flex min-h-screen items-center justify-center">
       <section className="text-center">
         <h1 className="text-2xl font-semibold">Researcher Dashboard</h1>
-        <p className="mt-2">Manage your studies and review their performance.</p>
-        <Link to="/analytics" className="mt-4 inline-block">
+        <p className="mt-2">
+          Manage your studies and review their performance.
+        </p>
+        <Link to="/studies/new" className="mt-4 inline-block">
+          Create Study
+        </Link>
+        <Link to="/analytics" className="mt-4 ml-4 inline-block">
           View Analytics
         </Link>
       </section>
@@ -65,6 +71,15 @@ function AppRoutes() {
       />
 
       <Route
+        path="/studies/new"
+        element={
+          <ProtectedRoute requireRole="researcher">
+            <CreateStudy />
+          </ProtectedRoute>
+        }
+      />
+
+      <Route
         path="/analytics"
         element={
           <ProtectedRoute requireRole="researcher">
@@ -78,7 +93,7 @@ function AppRoutes() {
   );
 }
 
-export function App() {
+function App() {
   return (
     <AuthProvider>
       <BrowserRouter>

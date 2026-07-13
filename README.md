@@ -18,7 +18,7 @@ Then run the backend and backend:
 
 ```bash
 npm run dev:backend
-npm run:frontend
+npm run dev:frontend
 ```
 
 The frontend runs at `http://localhost:5173` and the backend at

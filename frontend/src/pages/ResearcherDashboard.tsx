@@ -14,6 +14,19 @@ export function ResearcherDashboard() {
           </div>
           <button onClick={() => logout()} className="text-sm font-medium text-slate-500 hover:text-slate-700">Sign out</button>
         </div>
+         <section className="rounded-lg border border-slate-200 p-6 mt-5">
+          <h2 className="font-semibold text-slate-900">Create Study</h2>
+          <p className="mt-1 text-sm text-slate-500">
+            Create and publish a new research study for participants.
+          </p>
+
+          <Link
+            to="/studies/new"
+            className="mt-4 inline-block rounded-md bg-[#1F6F6B] px-4 py-2 text-sm font-medium text-white hover:bg-[#195954]"
+          >
+            Create Study
+          </Link>
+        </section>
         <section className="mt-8 rounded-lg border border-slate-200 p-6">
           <h2 className="font-semibold text-slate-900">Study analytics</h2>
           <p className="mt-1 text-sm text-slate-500">Review views and enrollment activity for your posted studies.</p>

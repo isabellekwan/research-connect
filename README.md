@@ -8,17 +8,21 @@ Install dependencies from the repo root:
 npm install
 ```
 
-Run the frontend:
+Start PostgreSQL (leave it running):
 
 ```bash
-npm run dev:frontend
+docker compose up db
 ```
 
-Run the backend:
+Then run the backend and backend:
 
 ```bash
 npm run dev:backend
+npm run:frontend
 ```
+
+The frontend runs at `http://localhost:5173` and the backend at
+`http://localhost:4100`.
 
 Build both apps:
 

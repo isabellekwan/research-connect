@@ -44,7 +44,7 @@ app.use(passport.session());
 app.use("/auth", authRoutes);
 app.use("/studies", studiesRoutes);
 
-const PORT = Number(process.env.PORT || 4000);
+const PORT = Number(process.env.PORT || 4100);
 
 app.listen(PORT, () => {
   console.log(`Server running on http://localhost:${PORT}`);

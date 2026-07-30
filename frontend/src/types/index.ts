@@ -6,6 +6,26 @@ export interface User {
   name: string;
   avatar_url: string | null;
   role: UserRole | null;
+  created_at: string;
+}
+
+export interface UserProfile {
+  id: string;
+  email: string;
+  name: string;
+  avatar_url: string | null;
+  role: UserRole | null;
+  profile_bio: string | null;
+  school_affiliation: string | null;
+  phone_number: string | null;
+  total_credits: string;
+  created_at: string;
+}
+
+export interface UpdateProfileInput {
+  profile_bio?: string | null;
+  school_affiliation?: string | null;
+  phone_number?: string | null;
 }
 
 export type StudyStatus = "draft" | "open" | "closed" | "archived";

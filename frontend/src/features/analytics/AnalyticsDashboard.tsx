@@ -1,7 +1,6 @@
 import { useEffect, useState } from 'react';
 import { Link } from 'react-router-dom';
 import { fetchResearcherStudies } from '../../api/studiesApi';
-import { useAuth } from '../../hooks/useAuth';
 import type { Study } from '../../types';
 import '../analytics/analytics.css';
 import {
@@ -25,7 +24,6 @@ const EMPTY_OVERVIEW: AnalyticsOverview = {
 };
 
 export const AnalyticsDashboard = () => {
-    const { user, logout } = useAuth();
     const [studies, setStudies] = useState<Study[]>([]);
     const [selectedStudyId, setSelectedStudyId] = useState<string | null>(null);
     const [overview, setOverview] = useState<AnalyticsOverview>(EMPTY_OVERVIEW);
@@ -95,16 +93,6 @@ export const AnalyticsDashboard = () => {
 
     return (
         <div className="analytics-page">
-            <header className="analytics-topbar">
-                <div className="analytics-topbar-inner">
-                    <div>
-                        <h1 className="analytics-topbar-title">Researcher Analytics</h1>
-                        <p className="analytics-topbar-subtitle">Welcome back, {user?.name}</p>
-                    </div>
-                    <button onClick={() => logout()} className="sign-out-link">Sign out</button>
-                </div>
-            </header>
-
             <div className="dashboard-container">
                 <header>
                     <h2>

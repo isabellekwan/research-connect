@@ -1,10 +1,11 @@
 import { Menu } from "lucide-react";
 import { useEffect, useRef, useState } from "react";
+import { useLocation } from "react-router-dom";
 import UserMenu from "../components/UserMenu";
 import { useAuth } from "../hooks/useAuth";
 
 export default function Header() {
-
+  const location = useLocation();
   const { user,isLoading } = useAuth();
   const [isUserMenuOpen, setIsUserMenuOpen] = useState(false);
   const menuContainerRef = useRef<HTMLDivElement>(null);
@@ -26,7 +27,7 @@ export default function Header() {
     };
   }, []);
 
-  if (isLoading || !user) {
+  if (isLoading || !user|| location.pathname.startsWith("/profile")) {
     return null;
   }
 
@@ -41,7 +42,8 @@ export default function Header() {
         <div className="mx-auto flex max-w-6xl items-center justify-between px-4 py-4">
           <div className="flex items-center gap-8">
             <div className="flex items-center gap-3">
-              <div className="flex h-10 w-10 items-center justify-center rounded-lg bg-[#1F6F6B] text-sm font-bold text-white shadow-sm">
+              <div className="flex h-10 w-10 items-center justify-center rounded-lg bg-[#1F6F6B] 
+              text-sm font-bold text-white shadow-sm">
                 RC
               </div>
 

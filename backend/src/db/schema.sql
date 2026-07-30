@@ -13,6 +13,9 @@ CREATE TABLE users (
     name            TEXT NOT NULL,
     avatar_url      TEXT,
     role            user_role,              -- NULL until the user completes role selection post sign-up
+    profile_bio     TEXT,
+    school_affiliation  TEXT,
+    phone_number        TEXT,
     created_at      TIMESTAMPTZ NOT NULL DEFAULT now(),
     updated_at      TIMESTAMPTZ NOT NULL DEFAULT now()
 );

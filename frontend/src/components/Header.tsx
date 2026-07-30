@@ -39,10 +39,6 @@ export default function Header() {
   return (
       <header className="border-b border-slate-200 bg-white">
         <div className="mx-auto flex max-w-6xl items-center justify-between px-4 py-4">
-          {/* <div>
-            <h1 className="text-lg font-semibold text-slate-900">{dashboardTitle}</h1>
-            <p className="text-sm text-slate-500">Welcome back, {user?.name}</p>
-          </div> */}
           <div className="flex items-center gap-8">
             <div className="flex items-center gap-3">
               <div className="flex h-10 w-10 items-center justify-center rounded-lg bg-[#1F6F6B] text-sm font-bold text-white shadow-sm">

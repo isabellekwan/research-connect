@@ -33,17 +33,8 @@ export default function UserMenu({onClose}:UserMenuProps) {
       setIsSigningOut(false);
     }
   }
-  // function getUserInitials(name:string){
-  //   const list = name.split(" ")
-  //   var ans = ""
-  //   for(const item of list ){
-  //     ans += item.charAt(0).toUpperCase()
-  //   }
-  //   return ans
-  // }
 
   return (
-
     <div
       role="menu"
       className="absolute right-0 z-50 mt-2 w-56 overflow-hidden rounded-lg border border-slate-200 bg-white py-1 shadow-lg"

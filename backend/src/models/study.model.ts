@@ -184,6 +184,19 @@ export async function applyToStudy(
   return rows[0];
 }
 
+/**
+ * Records that a participant viewed a study's detail page. Deduped per study/participant/day 
+ * at the DB level, so repeated visits the same day don't inflate the count.
+ */
+export async function recordStudyView(studyId: string, viewerId: string): Promise<void> {
+  await query(
+    `INSERT INTO study_views (study_id, viewer_id)
+     VALUES ($1, $2)
+     ON CONFLICT (study_id, viewer_id, view_date) DO NOTHING`,
+    [studyId, viewerId]
+  );
+}
+
 export async function listStudiesForResearcher(
   researcher_id:string
 ){

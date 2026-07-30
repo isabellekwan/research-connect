@@ -15,7 +15,7 @@ export const ViewsLineChart = ({ data }: ViewsLineChartProps) => {
                 <CartesianGrid strokeDasharray="3 3" stroke="var(--border-color)" vertical={false} />
                 
                 <XAxis dataKey="day" stroke="var(--text-secondary)" tick={{ fill: 'var(--text-secondary)' }} />
-                <YAxis stroke="var(--text-secondary)" tick={{ fill: 'var(--text-secondary)' }} />
+                <YAxis stroke="var(--text-secondary)" tick={{ fill: 'var(--text-secondary)' }} allowDecimals={false} />
                 
                 {/* Tooltip background changes dynamically */}
                 <Tooltip 

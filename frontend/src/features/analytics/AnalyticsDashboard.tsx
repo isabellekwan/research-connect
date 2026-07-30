@@ -1,25 +1,66 @@
 import { useEffect, useState } from 'react';
+import { Link } from 'react-router-dom';
+import { fetchResearcherStudies } from '../../api/studiesApi';
+import { useAuth } from '../../hooks/useAuth';
+import type { Study } from '../../types';
 import '../analytics/analytics.css';
-import { fetchEnrollmentStats, type EnrollmentStat } from './api/analyticsApi';
+import {
+    fetchEnrollmentStats,
+    fetchOverview,
+    fetchViewStats,
+    type AnalyticsOverview,
+    type EnrollmentStat,
+    type ViewStat,
+} from './api/analyticsApi';
 import { EnrollmentBarChart } from './components/EnrollmentBarChart';
 import { StudySelector } from './components/StudySelector';
 import { ViewsLineChart } from './components/ViewsLineChart';
-import { aggregateStudyViews, generateMockStudyViews, mockStudies } from './types/mockData';
+
+const EMPTY_OVERVIEW: AnalyticsOverview = {
+    studiesPosted: 0,
+    totalViews: 0,
+    viewsToday: 0,
+    totalSignups: 0,
+    signupsToday: 0,
+};
 
 export const AnalyticsDashboard = () => {
-    // Set up state to hold the real data
+    const { user, logout } = useAuth();
+    const [studies, setStudies] = useState<Study[]>([]);
     const [selectedStudyId, setSelectedStudyId] = useState<string | null>(null);
+    const [overview, setOverview] = useState<AnalyticsOverview>(EMPTY_OVERVIEW);
     const [enrollmentData, setEnrollmentData] = useState<EnrollmentStat[]>([]);
+    const [viewsData, setViewsData] = useState<ViewStat[]>([]);
     const [isLoading, setIsLoading] = useState(true);
 
-    // Fetch the data when the component mounts or when selectedStudyId changes
+    // Load the researcher's studies once, for the selector.
+    useEffect(() => {
+        fetchResearcherStudies()
+            .then(({ studies }) => setStudies(studies))
+            .catch((error) => console.error('Failed to load studies', error));
+    }, []);
+
+    // Fetch the metrics/charts when the component mounts or when selectedStudyId changes
     useEffect(() => {
         const loadData = async () => {
             setIsLoading(true);
-            // Pass selectedStudyId to this fetch function
-            const data = await fetchEnrollmentStats();
-            setEnrollmentData(data);
-            setIsLoading(false);
+            try {
+                const [overviewData, enrollments, views] = await Promise.all([
+                    fetchOverview(selectedStudyId),
+                    fetchEnrollmentStats(selectedStudyId),
+                    fetchViewStats(selectedStudyId),
+                ]);
+                setOverview(overviewData);
+                setEnrollmentData(enrollments);
+                setViewsData(views);
+            } catch (error) {
+                console.error('Failed to load analytics data', error);
+                setOverview(EMPTY_OVERVIEW);
+                setEnrollmentData([]);
+                setViewsData([]);
+            } finally {
+                setIsLoading(false);
+            }
         };
         loadData();
     }, [selectedStudyId]);
@@ -43,78 +84,85 @@ export const AnalyticsDashboard = () => {
             );
         }
 
-        // State 3. We have data: Show the actual chart
+        // State 3. We have data, so show the actual chart
         return <EnrollmentBarChart data={enrollmentData} />;
     };
 
     const renderViewsChart = () => {
         if (isLoading) return <div className="skeleton-chart"></div>;
-        
-        // Pass the mock data in as a prop, and also determine which data to show
-        let chartData;
-        if (selectedStudyId === null) {
-            // State 1: When "All Studies" is selected, show the big aggregate numbers
-            chartData = aggregateStudyViews;
-        } else {
-            // State 2: A specific study is selected, generate its unique data
-            chartData = generateMockStudyViews(selectedStudyId);
-        }
-
-        // Pass the selected data into the chart
-        return <ViewsLineChart data={chartData} />;
+        return <ViewsLineChart data={viewsData} />;
     };
 
     return (
-        <div className="dashboard-container">
-            <header>
-                <h2>
-                    {selectedStudyId 
-                        ? `Analytics: ${mockStudies.find(s => s.id === selectedStudyId)?.title}` 
-                        : 'Researcher Analytics Overview'}
-                </h2>
+        <div className="analytics-page">
+            <header className="analytics-topbar">
+                <div className="analytics-topbar-inner">
+                    <div>
+                        <h1 className="analytics-topbar-title">Researcher Analytics</h1>
+                        <p className="analytics-topbar-subtitle">Welcome back, {user?.name}</p>
+                    </div>
+                    <button onClick={() => logout()} className="sign-out-link">Sign out</button>
+                </div>
             </header>
 
-            <section className="metric-cards-row">
-                <div className="metric-card">
-                    <h3>Total Views</h3>
-                    <p className="metric-value">248</p>
-                </div>
+            <div className="dashboard-container">
+                <header>
+                    <h2>
+                        {selectedStudyId
+                            ? `Analytics: ${studies.find(s => s.id === selectedStudyId)?.title}`
+                            : 'Researcher Analytics Overview'}
+                    </h2>
+                </header>
 
-                <div className="metric-card">
-                    <h3>Views Today</h3>
-                    <p className="metric-value">12</p>
-                </div>
-                    
-                <div className="metric-card">
-                    <h3>Total Sign-ups</h3>
-                    <p className="metric-value">39</p>
-                </div>
+                <Link to="/researcher" className="back-link">← Researcher dashboard</Link>
 
-                <div className="metric-card">
-                    <h3>Sign-ups Today</h3>
-                    <p className="metric-value">8</p>
-                </div>
-            </section>
+                <section className="metric-cards-row">
+                    <div className="metric-card">
+                        <h3>Total Views</h3>
+                        <p className="metric-value">{overview.totalViews}</p>
+                    </div>
 
-            {/* Study List Section */}
-            <StudySelector 
-                studies={mockStudies} 
-                selectedStudyId={selectedStudyId} 
-                onSelectStudy={setSelectedStudyId} 
-            />
+                    <div className="metric-card">
+                        <h3>Views Today</h3>
+                        <p className="metric-value">{overview.viewsToday}</p>
+                    </div>
 
-            {/* Charts Section */}
-            <section className="charts-row">
-                <div className="chart-container">
-                    <h3>Views Over Time</h3>
-                    {renderViewsChart()}
-                </div>
+                    <div className="metric-card">
+                        <h3>Total Sign-ups</h3>
+                        <p className="metric-value">{overview.totalSignups}</p>
+                    </div>
 
-                <div className="chart-container">
-                    <h3>Enrollment Status Breakdown</h3>
-                    {renderEnrollmentChart()}
-                </div>
-            </section>
+                    <div className="metric-card">
+                        <h3>Sign-ups Today</h3>
+                        <p className="metric-value">{overview.signupsToday}</p>
+                    </div>
+
+                    <div className="metric-card">
+                        <h3>Studies Posted</h3>
+                        <p className="metric-value">{overview.studiesPosted}</p>
+                    </div>
+                </section>
+
+                {/* Study List Section */}
+                <StudySelector
+                    studies={studies}
+                    selectedStudyId={selectedStudyId}
+                    onSelectStudy={setSelectedStudyId}
+                />
+
+                {/* Charts Section */}
+                <section className="charts-row">
+                    <div className="chart-container">
+                        <h3>Views Over Time</h3>
+                        {renderViewsChart()}
+                    </div>
+
+                    <div className="chart-container">
+                        <h3>Enrollment Status Breakdown</h3>
+                        {renderEnrollmentChart()}
+                    </div>
+                </section>
+            </div>
         </div>
     );
 };

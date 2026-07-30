@@ -7,6 +7,7 @@ import {
   listDistinctCategories,
   listStudiesForParticipant,
   listStudiesForResearcher,
+  recordStudyView,
 } from "../models/study.model.js";
 import type { StudyFilters, User } from "../types/index.js";
 
@@ -90,6 +91,13 @@ export async function getCategories(_req: Request, res: Response) {
 export async function getStudy(req: Request, res: Response) {
   const study = await getStudyById(req.params.id as string);
   if (!study) return res.status(404).json({ error: "Study not found" });
+
+  const user = req.user as User;
+  try {
+    await recordStudyView(study.id, user.id);
+  } catch (err) {
+    console.error("Failed to record study view", err);
+  }
 
   const screeningQuestions = await getScreeningQuestions(study.id);
   res.json({ study, screeningQuestions });

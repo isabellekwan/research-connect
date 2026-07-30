@@ -1,11 +1,13 @@
 /* Light Theme Colors (Default) */
 :root {
-    --bg-main: #F8FAFC;
+    --bg-main: #F6F5F1;
     --bg-card: #FFFFFF;
     --text-primary: #0F172A;
     --text-secondary: #64748B;
     --border-color: #E2E8F0;
-    --accent-main: #4A7A68;
+    --accent-main: #1F6F6B;
+    --accent-main-rgb: 31, 111, 107;
+    --accent-hover: #195954;
     --tooltip-bg: rgba(255, 255, 255, 0.95);
 }
 
@@ -23,14 +25,75 @@
 } */
 
 /* Applying Variables to the Layout */
-.dashboard-container {
-    padding: 2rem;
-    background-color: var(--bg-main);
-    color: var(--text-primary);
+.analytics-page {
     min-height: 100vh;
+    background-color: var(--bg-main);
+    transition: background-color 0.3s ease;
+}
+
+.analytics-topbar {
+    background-color: var(--bg-card);
+    border-bottom: 1px solid var(--border-color);
+}
+
+.analytics-topbar-inner {
+    max-width: 72rem;
+    margin: 0 auto;
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    padding: 1.5rem 1rem;
+}
+
+.analytics-topbar-title {
+    margin: 0;
+    font-size: 1.125rem;
+    font-weight: 600;
+    color: var(--text-primary);
+}
+
+.analytics-topbar-subtitle {
+    margin: 0.125rem 0 0 0;
+    font-size: 0.875rem;
+    color: var(--text-secondary);
+}
+
+.sign-out-link {
+    background: none;
+    border: none;
+    padding: 0;
+    font-size: 0.875rem;
+    font-weight: 500;
+    color: var(--text-secondary);
+    cursor: pointer;
+    transition: color 0.2s ease;
+}
+
+.sign-out-link:hover {
+    color: var(--text-primary);
+}
+
+.dashboard-container {
+    max-width: 72rem;
+    margin: 0 auto;
+    padding: 2rem 1rem;
+    color: var(--text-primary);
     font-family: system-ui, -apple-system, sans-serif;
     box-sizing: border-box;
-    transition: background-color 0.3s ease, color 0.3s ease;
+}
+
+.back-link {
+    display: inline-block;
+    margin-bottom: 1rem;
+    font-size: 0.875rem;
+    font-weight: 500;
+    color: var(--accent-main);
+    text-decoration: none;
+}
+
+.back-link:hover {
+    color: var(--accent-hover);
+    text-decoration: underline;
 }
 
 .dashboard-container header h2 {
@@ -142,7 +205,7 @@
 
 /* Highlight the active row */
 .study-item.active {
-    background-color: rgba(104, 159, 139, 0.1);
+    background-color: rgba(var(--accent-main-rgb), 0.1);
     border-left: 4px solid var(--accent-main);
     color: var(--text-primary);
     font-weight: 500;
@@ -150,6 +213,16 @@
 
 .study-title {
     color: inherit;
+}
+
+.study-date,
+.study-status {
+    text-align: right;
+    padding-right: 1rem;
+}
+
+.study-status {
+    text-transform: capitalize;
 }
 
 /* --- Pagination Controls --- */
@@ -173,7 +246,7 @@
 
 .pagination-btn:hover:not(:disabled) {
   border-color: var(--accent-main);
-  color: var(--accent-main);
+  color: var(--accent-hover);
 }
 
 .pagination-btn:disabled {

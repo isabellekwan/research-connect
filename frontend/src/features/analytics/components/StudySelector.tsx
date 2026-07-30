@@ -1,5 +1,5 @@
 import { useState } from 'react';
-import type { Study } from '../types/mockData';
+import type { Study } from '../../../types';
 
 interface StudySelectorProps {
     studies: Study[];
@@ -40,8 +40,8 @@ export const StudySelector = ({ studies, selectedStudyId, onSelectStudy }: Study
                     onClick={() => onSelectStudy(study.id)}
                 >
                     <span className="study-title">{study.title}</span>
-                    <span>{study.datePosted}</span>
-                    <span>{study.status}</span>
+                    <span className="study-date">{new Date(study.created_at).toLocaleDateString()}</span>
+                    <span className="study-status">{study.status}</span>
                 </div>
                 ))}
             </div>

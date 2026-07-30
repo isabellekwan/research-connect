@@ -81,6 +81,24 @@ export interface CreateStudyInput {
   }[];
 }
 
+export interface AnalyticsOverview {
+  studiesPosted: number;
+  totalViews: number;
+  viewsToday: number;
+  totalSignups: number;
+  signupsToday: number;
+}
+
+export interface ViewStat {
+  day: string;
+  views: number;
+}
+
+export interface EnrollmentStat {
+  status: ApplicationStatus;
+  count: number;
+}
+
 // Augment express-session with the fields we actually store.
 declare module "express-session" {
   interface SessionData {

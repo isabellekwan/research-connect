@@ -4,6 +4,7 @@ import cors from "cors";
 import passport from "./config/passport.js";
 import authRoutes from "./routes/auth.routes.js";
 import studiesRoutes from "./routes/studies.routes.js";
+import analyticsRoutes from "./routes/analytics.routes.js";
 
 const app = express();
 
@@ -43,6 +44,7 @@ app.use(passport.session());
 // 3. Mount feature routes.
 app.use("/auth", authRoutes);
 app.use("/studies", studiesRoutes);
+app.use("/analytics", analyticsRoutes);
 
 const PORT = Number(process.env.PORT || 4100);
 

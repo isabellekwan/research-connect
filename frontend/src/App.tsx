@@ -1,4 +1,5 @@
 import { BrowserRouter, Navigate, Route, Routes } from "react-router-dom";
+import Header from "./components/Header";
 import { ProtectedRoute } from "./components/ProtectedRoute";
 import { AuthProvider } from "./context/AuthContext";
 import { AnalyticsDashboard } from "./features/analytics/AnalyticsDashboard";
@@ -6,6 +7,7 @@ import CreateStudy from "./features/study_creator/CreateStudy";
 import { useAuth } from "./hooks/useAuth";
 import { Login } from "./pages/Login";
 import { ParticipantDashboard } from "./pages/ParticipantDashboard";
+import ProfilePage from "./pages/ProfilePage/ProfilePage";
 import { ResearcherDashboard } from "./pages/ResearcherDashboard";
 import { SelectRole } from "./pages/SelectRole";
 
@@ -82,6 +84,15 @@ function AppRoutes() {
         }
       />
 
+      <Route
+        path="/profile"
+        element={
+          <ProtectedRoute>
+            <ProfilePage/>          
+          </ProtectedRoute>
+        }
+      />
+
       <Route path="*" element={<Root />} />
     </Routes>
   );
@@ -91,7 +102,7 @@ function App() {
   return (
     <AuthProvider>
       <BrowserRouter>
-        {/* <Header /> */}
+        <Header />
         <AppRoutes />
       </BrowserRouter>
     </AuthProvider>

@@ -28,15 +28,7 @@ export function ResearcherStudies() {
   }, []);
 
   return (
-    <section className="mt-8 rounded-lg border border-slate-200 p-6">
-      <h2 className="font-semibold text-slate-900">
-        Your studies
-      </h2>
-
-      <p className="mt-1 text-sm text-slate-500">
-        View the studies you have created.
-      </p>
-
+    <div>
       {isLoading && (
         <p className="mt-5 text-sm text-slate-500">
           Loading studies...
@@ -50,9 +42,14 @@ export function ResearcherStudies() {
       )}
 
       {!isLoading && !error && studies.length === 0 && (
-        <p className="mt-5 text-sm text-slate-500">
-          You have not created any studies yet.
-        </p>
+        <div className="rounded-lg border border-dashed border-slate-300 bg-slate-50 px-6 py-10 text-center">
+          <p className="mt-2 text-sm text-slate-500">
+            You have not created any studies yet.
+          </p>
+          <p className="mt-1 text-sm text-slate-500">
+            Create your first study to start recruiting participants.
+          </p>
+        </div>
       )}
 
       {!isLoading && !error && studies.length > 0 && (
@@ -60,7 +57,7 @@ export function ResearcherStudies() {
           {studies.map((study) => (
             <article
               key={study.id}
-              className="rounded-lg border border-slate-200 p-5"
+              className="flex min-w-0 flex-col rounded-lg border border-slate-200 bg-white p-5 transition hover:border-slate-300 hover:shadow-sm"
             >
               <div className="flex items-start justify-between gap-4">
                 <div>
@@ -111,6 +108,6 @@ export function ResearcherStudies() {
           ))}
         </div>
       )}
-    </section>
+    </div>
   );
 }

@@ -52,10 +52,17 @@ export interface Study {
 export interface StudyWithResearcher extends Study {
   researcher_name: string;
   application_status?: ApplicationStatus | null; // populated per-viewer when listing
+  has_booking?: boolean;
   [key: string]: unknown;
 }
 
-export type ApplicationStatus = "pending" | "accepted" | "rejected" | "withdrawn";
+export type ApplicationStatus =
+  | "eligible"
+  | "ineligible"
+  | "pending"
+  | "accepted"
+  | "rejected"
+  | "withdrawn";
 
 export interface StudyApplication {
   id: string;
@@ -63,9 +70,19 @@ export interface StudyApplication {
   participant_id: string;
   status: ApplicationStatus;
   screening_answers: { questionId: string; answer: boolean }[];
+  resume_url: string | null;
+  resume_original_name: string | null;
   created_at: string;
   updated_at: string;
   [key: string]: unknown;
+}
+
+export interface ResearcherApplication extends StudyApplication {
+  study_title: string;
+  participant_name: string;
+  participant_email: string;
+  booking_start_time: string | null;
+  booking_end_time: string | null;
 }
 
 export interface ScreeningQuestion {
@@ -74,6 +91,29 @@ export interface ScreeningQuestion {
   question_text: string;
   qualifying_answer: boolean;
   order_index: number;
+  [key: string]: unknown;
+}
+
+export interface TimeSlot {
+  id: string;
+  study_id: string;
+  start_time: string;
+  end_time: string;
+  capacity: number;
+  created_at: string;
+  [key: string]: unknown;
+}
+
+export interface AvailableTimeSlot extends TimeSlot {
+  booked_count: number;
+}
+
+export interface Booking {
+  id: string;
+  time_slot_id: string;
+  participant_id: string;
+  status: "confirmed" | "cancelled" | "completed";
+  created_at: string;
   [key: string]: unknown;
 }
 
@@ -98,6 +138,11 @@ export interface CreateStudyInput {
   screeningQuestions: {
     questionText: string;
     qualifyingAnswer: boolean;
+  }[];
+  timeSlots: {
+    startTime: string;
+    endTime: string;
+    capacity: number;
   }[];
 }
 

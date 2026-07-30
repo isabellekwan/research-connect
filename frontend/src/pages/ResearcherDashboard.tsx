@@ -2,6 +2,7 @@ import {
   BarChart3,
   ClipboardList,
   Plus,
+  UserCheck,
 } from "lucide-react";
 import { useEffect, useState } from "react";
 import { Link, useLocation, useNavigate } from "react-router-dom";
@@ -47,7 +48,7 @@ export function ResearcherDashboard() {
           </p>
         )}
 
-        <section className="grid gap-5 md:grid-cols-2">
+        <section className="grid gap-5 md:grid-cols-2 lg:grid-cols-3">
           <article className="rounded-xl border border-slate-200 bg-white p-6 shadow-sm">
             <div className="flex h-11 w-11 items-center justify-center rounded-lg bg-teal-50 text-[#1F6F6B]">
               <Plus/>
@@ -58,8 +59,7 @@ export function ResearcherDashboard() {
             </h2>
 
             <p className="mt-2 text-sm leading-6 text-slate-500">
-              Publish a new research opportunity, define eligibility
-              requirements, and add screening questions.
+              Publish a new research opportunity and add screening questions.
             </p>
 
             <Link
@@ -91,6 +91,28 @@ export function ResearcherDashboard() {
             >
               <BarChart3 className="h-4 w-4" />
               View analytics
+            </Link>
+          </article>
+
+          <article className="rounded-xl border border-slate-200 bg-white p-6 shadow-sm">
+            <div className="flex h-11 w-11 items-center justify-center rounded-lg bg-amber-50 text-amber-700">
+              <UserCheck />
+            </div>
+
+            <h2 className="mt-5 text-lg font-semibold text-slate-900">
+              Review applicants
+            </h2>
+
+            <p className="mt-2 text-sm leading-6 text-slate-500">
+              Review eligible participants and approve or reject their applications.
+            </p>
+
+            <Link
+              to="/researcher/applications"
+              className="mt-5 inline-flex items-center gap-2 rounded-md border border-slate-300 bg-white px-4 py-2.5 text-sm font-medium text-slate-700 transition hover:bg-slate-50"
+            >
+              <UserCheck className="h-4 w-4" />
+              View applicants
             </Link>
           </article>
         </section>

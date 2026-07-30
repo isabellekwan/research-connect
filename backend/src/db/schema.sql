@@ -2,7 +2,7 @@ CREATE EXTENSION IF NOT EXISTS pgcrypto;
 
 CREATE TYPE user_role AS ENUM ('researcher', 'participant');
 CREATE TYPE study_status AS ENUM ('draft', 'open', 'closed', 'archived');
-CREATE TYPE application_status AS ENUM ('pending', 'accepted', 'rejected', 'withdrawn');
+CREATE TYPE application_status AS ENUM ('eligible', 'ineligible', 'pending', 'accepted', 'rejected', 'withdrawn');
 CREATE TYPE booking_status AS ENUM ('confirmed', 'cancelled', 'completed');
 CREATE TYPE ledger_type AS ENUM ('credit', 'debit');
 
@@ -55,6 +55,8 @@ CREATE TABLE study_applications (
     participant_id  UUID NOT NULL REFERENCES users(id) ON DELETE CASCADE,
     status          application_status NOT NULL DEFAULT 'pending',
     screening_answers JSONB NOT NULL DEFAULT '[]', 
+    resume_url      TEXT,
+    resume_original_name TEXT,
     created_at      TIMESTAMPTZ NOT NULL DEFAULT now(),
     updated_at      TIMESTAMPTZ NOT NULL DEFAULT now(),
     UNIQUE (study_id, participant_id)
@@ -70,7 +72,8 @@ CREATE TABLE time_slots (
     end_time        TIMESTAMPTZ NOT NULL,
     capacity        INTEGER NOT NULL DEFAULT 1,
     created_at      TIMESTAMPTZ NOT NULL DEFAULT now(),
-    CHECK (end_time > start_time)
+    CHECK (end_time > start_time),
+    CHECK (capacity > 0)
 );
 
 CREATE INDEX idx_time_slots_study ON time_slots(study_id);

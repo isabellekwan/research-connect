@@ -29,7 +29,13 @@ export interface UpdateProfileInput {
 }
 
 export type StudyStatus = "draft" | "open" | "closed" | "archived";
-export type ApplicationStatus = "pending" | "accepted" | "rejected" | "withdrawn";
+export type ApplicationStatus =
+  | "eligible"
+  | "ineligible"
+  | "pending"
+  | "accepted"
+  | "rejected"
+  | "withdrawn";
 
 export interface Study {
   id: string;
@@ -43,6 +49,7 @@ export interface Study {
   compensation: string | null;
   status: StudyStatus;
   application_status?: ApplicationStatus | null;
+  has_booking?: boolean;
   created_at: string;
 }
 
@@ -52,6 +59,36 @@ export interface ScreeningQuestion {
   question_text: string;
   qualifying_answer: boolean;
   order_index: number;
+}
+
+export interface StudyApplication {
+  id: string;
+  study_id: string;
+  participant_id: string;
+  status: ApplicationStatus;
+  screening_answers: { questionId: string; answer: boolean }[];
+  resume_url: string | null;
+  resume_original_name: string | null;
+  created_at: string;
+  updated_at: string;
+}
+
+export interface ResearcherApplication extends StudyApplication {
+  study_title: string;
+  participant_name: string;
+  participant_email: string;
+  booking_start_time: string | null;
+  booking_end_time: string | null;
+}
+
+export interface TimeSlot {
+  id: string;
+  study_id: string;
+  start_time: string;
+  end_time: string;
+  capacity: number;
+  booked_count?: number;
+  created_at: string;
 }
 
 export interface StudyListResponse {

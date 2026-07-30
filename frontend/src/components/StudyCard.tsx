@@ -3,17 +3,21 @@ import type { Study } from "../types";
 interface StudyCardProps {
   study: Study;
   onApply: (study: Study) => void;
+  onBook: (study: Study) => void;
 }
 
 const STATUS_STYLES: Record<string, string> = {
+  eligible: "bg-teal-50 text-teal-700 border-teal-200",
+  ineligible: "bg-slate-100 text-slate-500 border-slate-200",
   pending: "bg-amber-50 text-amber-700 border-amber-200",
   accepted: "bg-emerald-50 text-emerald-700 border-emerald-200",
   rejected: "bg-slate-100 text-slate-500 border-slate-200",
   withdrawn: "bg-slate-100 text-slate-500 border-slate-200",
 };
 
-export function StudyCard({ study, onApply }: StudyCardProps) {
-  const alreadyApplied = Boolean(study.application_status);
+export function StudyCard({ study, onApply, onBook }: StudyCardProps) {
+  const hasStatus = Boolean(study.application_status);
+  const canContinue = study.application_status === "eligible";
 
   return (
     <div className="flex flex-col justify-between rounded-lg border border-slate-200 bg-white p-5 shadow-sm transition hover:shadow-md">
@@ -53,7 +57,25 @@ export function StudyCard({ study, onApply }: StudyCardProps) {
       </div>
 
       <div className="mt-4">
-        {alreadyApplied ? (
+        {study.application_status === "accepted" && !study.has_booking ? (
+          <button
+            onClick={() => onBook(study)}
+            className="w-full rounded-md bg-[#1F6F6B] px-3 py-2 text-sm font-medium text-white hover:bg-[#195954]"
+          >
+            Choose a time
+          </button>
+        ) : study.application_status === "accepted" && study.has_booking ? (
+          <span className="inline-block rounded-md border border-emerald-200 bg-emerald-50 px-3 py-1.5 text-xs font-medium text-emerald-700">
+            Session booked
+          </span>
+        ) : canContinue ? (
+          <button
+            onClick={() => onApply(study)}
+            className="w-full rounded-md bg-[#1F6F6B] px-3 py-2 text-sm font-medium text-white transition hover:bg-[#195954] focus:outline-none focus:ring-2 focus:ring-[#1F6F6B] focus:ring-offset-2"
+          >
+            View details and apply
+          </button>
+        ) : hasStatus ? (
           <span
             className={`inline-block rounded-md border px-3 py-1.5 text-xs font-medium ${
               STATUS_STYLES[study.application_status as string] ?? STATUS_STYLES.pending
@@ -66,7 +88,7 @@ export function StudyCard({ study, onApply }: StudyCardProps) {
             onClick={() => onApply(study)}
             className="w-full rounded-md bg-[#1F6F6B] px-3 py-2 text-sm font-medium text-white transition hover:bg-[#195954] focus:outline-none focus:ring-2 focus:ring-[#1F6F6B] focus:ring-offset-2"
           >
-            Apply to this study
+            Check eligibility
           </button>
         )}
       </div>
@@ -76,12 +98,16 @@ export function StudyCard({ study, onApply }: StudyCardProps) {
 
 function labelForStatus(status: Study["application_status"]) {
   switch (status) {
+    case "eligible":
+      return "Eligible — ready to apply";
+    case "ineligible":
+      return "Not eligible";
     case "pending":
-      return "Application pending";
+      return "Waiting for researcher review";
     case "accepted":
-      return "You're in — accepted";
+      return "Application approved";
     case "rejected":
-      return "Not a match this time";
+      return "Application not approved";
     case "withdrawn":
       return "Application withdrawn";
     default:

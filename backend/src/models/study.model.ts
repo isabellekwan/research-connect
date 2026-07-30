@@ -1,12 +1,16 @@
 import { pool, query } from "../config/db.js";
 import type {
   ApplicationStatus,
+  AvailableTimeSlot,
+  Booking,
   CreateStudyInput,
+  ResearcherApplication,
   ScreeningQuestion,
   Study,
   StudyApplication,
   StudyFilters,
   StudyWithResearcher,
+  TimeSlot,
 } from "../types/index.js";
 
 interface ListResult {
@@ -14,10 +18,15 @@ interface ListResult {
   total: number;
 }
 
+interface CreatedStudyResult {
+  study: Study;
+  timeSlots: TimeSlot[];
+}
+
 export async function createStudy(
   researcherId: string,
   input: CreateStudyInput
-): Promise<Study> {
+): Promise<CreatedStudyResult> {
   const client = await pool.connect();
   try {
     await client.query("BEGIN");
@@ -48,8 +57,19 @@ export async function createStudy(
       );
     }
 
+    const timeSlots: TimeSlot[] = [];
+    for (const slot of input.timeSlots) {
+      const { rows: slotRows } = await client.query<TimeSlot>(
+        `INSERT INTO time_slots (study_id, start_time, end_time, capacity)
+         VALUES ($1, $2, $3, $4)
+         RETURNING *`,
+        [study.id, slot.startTime, slot.endTime, slot.capacity]
+      );
+      timeSlots.push(slotRows[0]);
+    }
+
     await client.query("COMMIT");
-    return study;
+    return { study, timeSlots };
   } catch (error) {
     await client.query("ROLLBACK");
     throw error;
@@ -108,7 +128,15 @@ export async function listStudiesForParticipant(
     `SELECT
         s.*,
         u.name AS researcher_name,
-        sa.status AS application_status
+        sa.status AS application_status,
+        EXISTS (
+          SELECT 1
+          FROM bookings b
+          JOIN time_slots booked_slot ON booked_slot.id = b.time_slot_id
+          WHERE booked_slot.study_id = s.id
+            AND b.participant_id = $${participantIdParamIndex}
+            AND b.status = 'confirmed'
+        ) AS has_booking
      FROM studies s
      JOIN users u ON u.id = s.researcher_id
      LEFT JOIN study_applications sa
@@ -153,25 +181,138 @@ export async function getScreeningQuestions(studyId: string): Promise<ScreeningQ
   return rows;
 }
 
+export async function getTimeSlotsForStudy(studyId: string): Promise<TimeSlot[]> {
+  const { rows } = await query<TimeSlot>(
+    `SELECT *
+     FROM time_slots
+     WHERE study_id = $1 AND end_time > now()
+     ORDER BY start_time ASC`,
+    [studyId]
+  );
+  return rows;
+}
+
+export async function getAvailableTimeSlots(
+  studyId: string,
+  participantId: string
+): Promise<AvailableTimeSlot[]> {
+  const { rows } = await query<AvailableTimeSlot>(
+    `SELECT
+       ts.*,
+       COUNT(b.id) FILTER (WHERE b.status = 'confirmed')::int AS booked_count
+     FROM time_slots ts
+     LEFT JOIN bookings b ON b.time_slot_id = ts.id
+     WHERE ts.study_id = $1
+       AND ts.start_time > now()
+       AND EXISTS (
+         SELECT 1
+         FROM study_applications sa
+         WHERE sa.study_id = $1
+           AND sa.participant_id = $2
+           AND sa.status = 'accepted'
+       )
+     GROUP BY ts.id
+     ORDER BY ts.start_time`,
+    [studyId, participantId]
+  );
+  return rows;
+}
+
+interface BookingResult {
+  booking?: Booking;
+  error?: "not_accepted" | "slot_not_found" | "already_booked" | "slot_full";
+}
+
+export async function bookTimeSlot(
+  studyId: string,
+  slotId: string,
+  participantId: string
+): Promise<BookingResult> {
+  const client = await pool.connect();
+  try {
+    await client.query("BEGIN");
+
+    const application = await client.query(
+      `SELECT id
+       FROM study_applications
+       WHERE study_id = $1 AND participant_id = $2 AND status = 'accepted'
+       FOR UPDATE`,
+      [studyId, participantId]
+    );
+    if (!application.rows[0]) {
+      await client.query("ROLLBACK");
+      return { error: "not_accepted" };
+    }
+
+    const slot = await client.query<{ id: string; capacity: number }>(
+      `SELECT id, capacity
+       FROM time_slots
+       WHERE id = $1 AND study_id = $2 AND start_time > now()
+       FOR UPDATE`,
+      [slotId, studyId]
+    );
+    if (!slot.rows[0]) {
+      await client.query("ROLLBACK");
+      return { error: "slot_not_found" };
+    }
+
+    const existing = await client.query(
+      `SELECT 1
+       FROM bookings b
+       JOIN time_slots ts ON ts.id = b.time_slot_id
+       WHERE ts.study_id = $1
+         AND b.participant_id = $2
+         AND b.status = 'confirmed'`,
+      [studyId, participantId]
+    );
+    if (existing.rows[0]) {
+      await client.query("ROLLBACK");
+      return { error: "already_booked" };
+    }
+
+    const count = await client.query<{ count: number }>(
+      `SELECT COUNT(*)::int AS count
+       FROM bookings
+       WHERE time_slot_id = $1 AND status = 'confirmed'`,
+      [slotId]
+    );
+    if (count.rows[0].count >= slot.rows[0].capacity) {
+      await client.query("ROLLBACK");
+      return { error: "slot_full" };
+    }
+
+    const { rows } = await client.query<Booking>(
+      `INSERT INTO bookings (time_slot_id, participant_id)
+       VALUES ($1, $2)
+       RETURNING *`,
+      [slotId, participantId]
+    );
+    await client.query("COMMIT");
+    return { booking: rows[0] };
+  } catch (error) {
+    await client.query("ROLLBACK");
+    throw error;
+  } finally {
+    client.release();
+  }
+}
+
 /**
- * Registers (applies) a participant to a study. Screening answers are
- * checked against each question's qualifying_answer; if every answer
- * qualifies, the application is auto-accepted, otherwise auto-rejected.
- * Researchers can still override status later via a review endpoint.
+ * Checks a participant's screening answers. Qualifying participants can
+ * continue to the full application; this never accepts them into the study.
  */
-export async function applyToStudy(
+export async function checkStudyEligibility(
   studyId: string,
   participantId: string,
   screeningAnswers: { questionId: string; answer: boolean }[]
 ): Promise<StudyApplication> {
   const questions = await getScreeningQuestions(studyId);
-
-  let status: ApplicationStatus = "pending";
-  if (questions.length > 0) {
-    const answerMap = new Map(screeningAnswers.map((a) => [a.questionId, a.answer]));
-    const allQualify = questions.every((q) => answerMap.get(q.id) === q.qualifying_answer);
-    status = allQualify ? "accepted" : "rejected";
-  }
+  const answerMap = new Map(screeningAnswers.map((answer) => [answer.questionId, answer.answer]));
+  const allAnswered = questions.every((question) => answerMap.has(question.id));
+  const allQualify =
+    allAnswered &&
+    questions.every((question) => answerMap.get(question.id) === question.qualifying_answer);
+  const status: ApplicationStatus = allQualify ? "eligible" : "ineligible";
 
   const { rows } = await query<StudyApplication>(
     `INSERT INTO study_applications (study_id, participant_id, status, screening_answers)
@@ -182,6 +323,105 @@ export async function applyToStudy(
     [studyId, participantId, status, JSON.stringify(screeningAnswers)]
   );
   return rows[0];
+}
+
+export async function getApplicationForParticipant(
+  studyId: string,
+  participantId: string
+): Promise<StudyApplication | null> {
+  const { rows } = await query<StudyApplication>(
+    `SELECT *
+     FROM study_applications
+     WHERE study_id = $1 AND participant_id = $2`,
+    [studyId, participantId]
+  );
+  return rows[0] ?? null;
+}
+
+export async function submitEligibleApplication(
+  studyId: string,
+  participantId: string
+): Promise<StudyApplication | null> {
+  const { rows } = await query<StudyApplication>(
+    `UPDATE study_applications
+     SET status = 'pending', updated_at = now()
+     WHERE study_id = $1 AND participant_id = $2 AND status = 'eligible'
+     RETURNING *`,
+    [studyId, participantId]
+  );
+  return rows[0] ?? null;
+}
+
+export async function saveApplicationResume(
+  studyId: string,
+  participantId: string,
+  resumeUrl: string,
+  originalName: string
+): Promise<StudyApplication | null> {
+  const { rows } = await query<StudyApplication>(
+    `UPDATE study_applications
+     SET resume_url = $3, resume_original_name = $4, updated_at = now()
+     WHERE study_id = $1 AND participant_id = $2 AND status = 'eligible'
+     RETURNING *`,
+    [studyId, participantId, resumeUrl, originalName]
+  );
+  return rows[0] ?? null;
+}
+
+export async function listApplicationsForResearcher(
+  researcherId: string
+): Promise<ResearcherApplication[]> {
+  const { rows } = await query<ResearcherApplication>(
+    `SELECT
+       sa.*,
+       s.title AS study_title,
+       participant.name AS participant_name,
+       participant.email AS participant_email,
+       booked_slot.start_time AS booking_start_time,
+       booked_slot.end_time AS booking_end_time
+     FROM study_applications sa
+     JOIN studies s ON s.id = sa.study_id
+     JOIN users participant ON participant.id = sa.participant_id
+     LEFT JOIN bookings booked
+       ON booked.participant_id = sa.participant_id
+       AND booked.status = 'confirmed'
+     LEFT JOIN time_slots booked_slot
+       ON booked_slot.id = booked.time_slot_id
+       AND booked_slot.study_id = sa.study_id
+     WHERE s.researcher_id = $1
+       AND sa.status IN ('pending', 'accepted', 'rejected')
+     ORDER BY
+       CASE WHEN sa.status = 'pending' THEN 0 ELSE 1 END,
+       sa.updated_at DESC`,
+    [researcherId]
+  );
+  return rows;
+}
+
+export async function reviewStudyApplication(
+  applicationId: string,
+  researcherId: string,
+  status: "accepted" | "rejected"
+): Promise<ResearcherApplication | null> {
+  const { rows } = await query<ResearcherApplication>(
+    `UPDATE study_applications sa
+     SET status = $3, updated_at = now()
+     FROM studies s, users participant
+     WHERE sa.id = $1
+       AND s.id = sa.study_id
+       AND s.researcher_id = $2
+       AND participant.id = sa.participant_id
+       AND sa.status = 'pending'
+     RETURNING
+       sa.*,
+       s.title AS study_title,
+       participant.name AS participant_name,
+       participant.email AS participant_email,
+       NULL::timestamptz AS booking_start_time,
+       NULL::timestamptz AS booking_end_time`,
+    [applicationId, researcherId, status]
+  );
+  return rows[0] ?? null;
 }
 
 /**

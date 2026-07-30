@@ -16,4 +16,9 @@ export interface CreateStudyPayload {
     questionText: string;
     qualifyingAnswer: boolean;
   }[];
+  timeSlots: {
+    startTime: string;
+    endTime: string;
+    capacity: number;
+  }[];
 }

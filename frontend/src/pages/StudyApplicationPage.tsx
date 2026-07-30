@@ -132,13 +132,13 @@ export function StudyApplicationPage() {
             </dl>
 
             <section className="border-t border-slate-200 pt-7">
-              <h2 className="font-semibold text-slate-900">Optional résumé</h2>
+              <h2 className="font-semibold text-slate-900">Optional resume</h2>
               <p className="mt-1 text-sm text-slate-500">
                 Attach a PDF up to 10 MB. This is optional.
               </p>
               <label className="mt-4 flex cursor-pointer items-center justify-center gap-3 rounded-lg border border-dashed border-slate-300 bg-slate-50 px-5 py-6 text-sm text-slate-600 transition hover:border-[#1F6F6B] hover:bg-teal-50/40">
                 {resume ? <FileText className="h-5 w-5 text-[#1F6F6B]" /> : <Upload className="h-5 w-5" />}
-                <span>{resume ? resume.name : "Choose a PDF résumé"}</span>
+                <span>{resume ? resume.name : "Choose a PDF resume"}</span>
                 <input
                   type="file"
                   accept="application/pdf,.pdf"

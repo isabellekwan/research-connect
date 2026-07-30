@@ -1,5 +1,6 @@
 import type { CreateStudyPayload } from "../features/study_creator/types/types";
 import type {
+  CalendarEvent,
   ResearcherApplication,
   ScreeningQuestion,
   Study,
@@ -27,6 +28,10 @@ export function fetchResearcherStudies() {
   return apiRequest<{ studies: Study[] }>(
     "/studies/researcher"
   );
+}
+
+export function fetchCalendar() {
+  return apiRequest<{ events: CalendarEvent[] }>("/studies/calendar");
 }
 
 export function createStudy(payload: CreateStudyPayload) {

@@ -117,6 +117,27 @@ export interface Booking {
   [key: string]: unknown;
 }
 
+export interface CalendarBooking {
+  participant_id: string;
+  participant_name: string;
+  participant_email: string;
+  status: Booking["status"];
+}
+
+export interface CalendarEvent {
+  time_slot_id: string;
+  study_id: string;
+  study_title: string;
+  start_time: string;
+  end_time: string;
+  location: string | null;
+  is_remote: boolean;
+  capacity: number;
+  booked_count: number;
+  bookings: CalendarBooking[];
+  [key: string]: unknown;
+}
+
 export interface StudyFilters {
   category?: string;
   isRemote?: boolean;

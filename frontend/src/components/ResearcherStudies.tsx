@@ -53,7 +53,7 @@ export function ResearcherStudies() {
       )}
 
       {!isLoading && !error && studies.length > 0 && (
-        <div className="mt-5 space-y-4">
+        <div className="mt-5 grid gap-4 md:grid-cols-2">
           {studies.map((study) => (
             <article
               key={study.id}

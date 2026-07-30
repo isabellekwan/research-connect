@@ -91,6 +91,26 @@ export interface TimeSlot {
   created_at: string;
 }
 
+export interface CalendarBooking {
+  participant_id: string;
+  participant_name: string;
+  participant_email: string;
+  status: "confirmed" | "completed";
+}
+
+export interface CalendarEvent {
+  time_slot_id: string;
+  study_id: string;
+  study_title: string;
+  start_time: string;
+  end_time: string;
+  location: string | null;
+  is_remote: boolean;
+  capacity: number;
+  booked_count: number;
+  bookings: CalendarBooking[];
+}
+
 export interface StudyListResponse {
   studies: Study[];
   total: number;

@@ -3,6 +3,7 @@ import {
   bookTimeSlotHandler,
   checkEligibilityHandler,
   createStudyHandler,
+  getCalendar,
   getCategories,
   getResearcherApplications,
   getStudy,
@@ -21,6 +22,7 @@ const router = Router();
 router.post("/", isAuthenticated, requireRole("researcher"), createStudyHandler);
 router.get("/", isAuthenticated, requireRole("participant"), listStudies);
 router.get("/categories", isAuthenticated, requireRole("participant"), getCategories);
+router.get("/calendar", isAuthenticated, getCalendar);
 router.get("/researcher",isAuthenticated,requireRole("researcher"),listResearcherStudies);  
 router.get("/applications/researcher", isAuthenticated, requireRole("researcher"), getResearcherApplications);
 router.patch("/applications/:applicationId", isAuthenticated, requireRole("researcher"), reviewApplicationHandler);

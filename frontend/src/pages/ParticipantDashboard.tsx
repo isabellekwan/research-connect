@@ -3,6 +3,7 @@ import { useNavigate } from "react-router-dom";
 import { fetchStudies } from "../api/studiesApi";
 import { BookingModal } from "../components/BookingModal";
 import { RegistrationModal } from "../components/RegistrationModal";
+import { ScheduleCalendar } from "../components/ScheduleCalendar";
 import { StudyCard } from "../components/StudyCard";
 import { StudyFilters } from "../components/StudyFilters";
 import type { Study, StudyFilterState } from "../types";
@@ -63,76 +64,84 @@ export function ParticipantDashboard() {
   return (
     <div className="min-h-screen bg-[#F6F5F1]">
       <main className="mx-auto max-w-6xl px-4 py-6">
-        <StudyFilters filters={filters} onChange={setFilters} />
+        <div className="grid items-start gap-6 lg:grid-cols-[minmax(0,1fr)_20rem]">
+          <div className="min-w-0">
+            <StudyFilters filters={filters} onChange={setFilters} />
 
-        {error && (
-          <p className="mb-4 rounded-md border border-red-200 bg-red-50 px-4 py-3 text-sm text-red-700">
-            {error}
-          </p>
-        )}
-
-        {!isLoading && eligibleStudies.length > 0 && (
-          <section className="mb-8">
-            <div className="mb-3">
-              <h2 className="text-lg font-semibold text-slate-900">Eligible studies</h2>
-              <p className="text-sm text-slate-500">
-                You passed screening. Review the details and submit your application.
+            {error && (
+              <p className="mb-4 rounded-md border border-red-200 bg-red-50 px-4 py-3 text-sm text-red-700">
+                {error}
               </p>
-            </div>
-            <div className="grid grid-cols-1 gap-4 sm:grid-cols-2 lg:grid-cols-3">
-              {eligibleStudies.map((study) => (
-                <StudyCard key={study.id} study={study} onApply={handleStudyAction} onBook={setBookingStudy} />
-              ))}
-            </div>
-          </section>
-        )}
+            )}
 
-        {!isLoading && otherStudies.length > 0 && (
-          <h2 className="mb-3 text-lg font-semibold text-slate-900">Discover studies</h2>
-        )}
+            {!isLoading && eligibleStudies.length > 0 && (
+              <section className="mb-8">
+                <div className="mb-3">
+                  <h2 className="text-lg font-semibold text-slate-900">Eligible studies</h2>
+                  <p className="text-sm text-slate-500">
+                    You passed screening. Review the details and submit your application.
+                  </p>
+                </div>
+                <div className="grid grid-cols-1 gap-4 sm:grid-cols-2">
+                  {eligibleStudies.map((study) => (
+                    <StudyCard key={study.id} study={study} onApply={handleStudyAction} onBook={setBookingStudy} />
+                  ))}
+                </div>
+              </section>
+            )}
 
-        {isLoading ? (
-          <div className="grid grid-cols-1 gap-4 sm:grid-cols-2 lg:grid-cols-3">
-            {Array.from({ length: 6 }).map((_, i) => (
-              <div key={i} className="h-48 animate-pulse rounded-lg bg-slate-200/60" />
-            ))}
-          </div>
-        ) : studies.length === 0 ? (
-          <div className="rounded-lg border border-dashed border-slate-300 bg-white p-12 text-center">
-            <p className="font-medium text-slate-700">No studies match your filters</p>
-            <p className="mt-1 text-sm text-slate-500">
-              Try widening your search or checking back later for new postings.
-            </p>
-          </div>
-        ) : otherStudies.length > 0 ? (
-          <div className="grid grid-cols-1 gap-4 sm:grid-cols-2 lg:grid-cols-3">
-            {otherStudies.map((study) => (
-              <StudyCard key={study.id} study={study} onApply={handleStudyAction} onBook={setBookingStudy} />
-            ))}
-          </div>
-        ) : null}
+            {!isLoading && otherStudies.length > 0 && (
+              <h2 className="mb-3 text-lg font-semibold text-slate-900">Discover studies</h2>
+            )}
 
-        {totalPages > 1 && (
-          <div className="mt-6 flex items-center justify-center gap-3">
-            <button
-              disabled={filters.page <= 1}
-              onClick={() => setFilters((f) => ({ ...f, page: f.page - 1 }))}
-              className="rounded-md border border-slate-300 px-3 py-1.5 text-sm disabled:opacity-40"
-            >
-              Previous
-            </button>
-            <span className="text-sm text-slate-500">
-              Page {filters.page} of {totalPages}
-            </span>
-            <button
-              disabled={filters.page >= totalPages}
-              onClick={() => setFilters((f) => ({ ...f, page: f.page + 1 }))}
-              className="rounded-md border border-slate-300 px-3 py-1.5 text-sm disabled:opacity-40"
-            >
-              Next
-            </button>
+            {isLoading ? (
+              <div className="grid grid-cols-1 gap-4 sm:grid-cols-2">
+                {Array.from({ length: 6 }).map((_, i) => (
+                  <div key={i} className="h-48 animate-pulse rounded-lg bg-slate-200/60" />
+                ))}
+              </div>
+            ) : studies.length === 0 ? (
+              <div className="rounded-lg border border-dashed border-slate-300 bg-white p-12 text-center">
+                <p className="font-medium text-slate-700">No studies match your filters</p>
+                <p className="mt-1 text-sm text-slate-500">
+                  Try widening your search or checking back later for new postings.
+                </p>
+              </div>
+            ) : otherStudies.length > 0 ? (
+              <div className="grid grid-cols-1 gap-4 sm:grid-cols-2">
+                {otherStudies.map((study) => (
+                  <StudyCard key={study.id} study={study} onApply={handleStudyAction} onBook={setBookingStudy} />
+                ))}
+              </div>
+            ) : null}
+
+            {totalPages > 1 && (
+              <div className="mt-6 flex items-center justify-center gap-3">
+                <button
+                  disabled={filters.page <= 1}
+                  onClick={() => setFilters((f) => ({ ...f, page: f.page - 1 }))}
+                  className="rounded-md border border-slate-300 px-3 py-1.5 text-sm disabled:opacity-40"
+                >
+                  Previous
+                </button>
+                <span className="text-sm text-slate-500">
+                  Page {filters.page} of {totalPages}
+                </span>
+                <button
+                  disabled={filters.page >= totalPages}
+                  onClick={() => setFilters((f) => ({ ...f, page: f.page + 1 }))}
+                  className="rounded-md border border-slate-300 px-3 py-1.5 text-sm disabled:opacity-40"
+                >
+                  Next
+                </button>
+              </div>
+            )}
           </div>
-        )}
+
+          <aside className="order-first lg:order-none">
+            <ScheduleCalendar role="participant" />
+          </aside>
+        </div>
       </main>
 
       {applyingTo && (

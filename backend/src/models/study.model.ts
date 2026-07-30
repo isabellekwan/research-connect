@@ -3,6 +3,7 @@ import type {
   ApplicationStatus,
   AvailableTimeSlot,
   Booking,
+  CalendarEvent,
   CreateStudyInput,
   ResearcherApplication,
   ScreeningQuestion,
@@ -448,5 +449,69 @@ export async function listStudiesForResearcher(
     [researcher_id]
   );
 
+  return rows;
+}
+
+export async function listCalendarForParticipant(
+  participantId: string
+): Promise<CalendarEvent[]> {
+  const { rows } = await query<CalendarEvent>(
+    `SELECT
+       ts.id AS time_slot_id,
+       s.id AS study_id,
+       s.title AS study_title,
+       ts.start_time,
+       ts.end_time,
+       s.location,
+       s.is_remote,
+       ts.capacity,
+       1 AS booked_count,
+       '[]'::json AS bookings
+     FROM bookings b
+     JOIN time_slots ts ON ts.id = b.time_slot_id
+     JOIN studies s ON s.id = ts.study_id
+     WHERE b.participant_id = $1
+       AND b.status <> 'cancelled'
+     ORDER BY ts.start_time`,
+    [participantId]
+  );
+  return rows;
+}
+
+export async function listCalendarForResearcher(
+  researcherId: string
+): Promise<CalendarEvent[]> {
+  const { rows } = await query<CalendarEvent>(
+    `SELECT
+       ts.id AS time_slot_id,
+       s.id AS study_id,
+       s.title AS study_title,
+       ts.start_time,
+       ts.end_time,
+       s.location,
+       s.is_remote,
+       ts.capacity,
+       COUNT(b.id) FILTER (WHERE b.status <> 'cancelled')::int AS booked_count,
+       COALESCE(
+         json_agg(
+           json_build_object(
+             'participant_id', participant.id,
+             'participant_name', participant.name,
+             'participant_email', participant.email,
+             'status', b.status
+           )
+           ORDER BY participant.name
+         ) FILTER (WHERE b.id IS NOT NULL AND b.status <> 'cancelled'),
+         '[]'::json
+       ) AS bookings
+     FROM time_slots ts
+     JOIN studies s ON s.id = ts.study_id
+     LEFT JOIN bookings b ON b.time_slot_id = ts.id
+     LEFT JOIN users participant ON participant.id = b.participant_id
+     WHERE s.researcher_id = $1
+     GROUP BY ts.id, s.id
+     ORDER BY ts.start_time`,
+    [researcherId]
+  );
   return rows;
 }

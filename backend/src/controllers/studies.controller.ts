@@ -9,6 +9,8 @@ import {
   getAvailableTimeSlots,
   getScreeningQuestions,
   getStudyById,
+  listCalendarForParticipant,
+  listCalendarForResearcher,
   listDistinctCategories,
   listApplicationsForResearcher,
   listStudiesForParticipant,
@@ -320,4 +322,14 @@ export async function listResearcherStudies(req: Request, res: Response){
   const studies = await listStudiesForResearcher(user.id);
 
   res.json({ studies });
+}
+
+export async function getCalendar(req: Request, res: Response) {
+  const user = req.user as User;
+  const events =
+    user.role === "researcher"
+      ? await listCalendarForResearcher(user.id)
+      : await listCalendarForParticipant(user.id);
+
+  res.json({ events });
 }

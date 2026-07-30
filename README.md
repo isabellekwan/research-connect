@@ -14,7 +14,13 @@ Start PostgreSQL (leave it running):
 docker compose up db
 ```
 
-Then run the backend and backend:
+Apply any database changes:
+
+```bash
+npm --workspace backend run db:migrate
+```
+
+Then run the backend and frontend:
 
 ```bash
 npm run dev:backend

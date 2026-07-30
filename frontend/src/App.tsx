@@ -9,7 +9,9 @@ import { Login } from "./pages/Login";
 import { ParticipantDashboard } from "./pages/ParticipantDashboard";
 import ProfilePage from "./pages/ProfilePage/ProfilePage";
 import { ResearcherDashboard } from "./pages/ResearcherDashboard";
+import { ResearcherApplications } from "./pages/ResearcherApplications";
 import { SelectRole } from "./pages/SelectRole";
+import { StudyApplicationPage } from "./pages/StudyApplicationPage";
 
 function Root() {
   const { user, isLoading } = useAuth();
@@ -71,6 +73,24 @@ function AppRoutes() {
         element={
           <ProtectedRoute requireRole="researcher">
             <CreateStudy />
+          </ProtectedRoute>
+        }
+      />
+
+      <Route
+        path="/studies/:studyId/apply"
+        element={
+          <ProtectedRoute requireRole="participant">
+            <StudyApplicationPage />
+          </ProtectedRoute>
+        }
+      />
+
+      <Route
+        path="/researcher/applications"
+        element={
+          <ProtectedRoute requireRole="researcher">
+            <ResearcherApplications />
           </ProtectedRoute>
         }
       />

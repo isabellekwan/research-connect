@@ -1,16 +1,14 @@
 import { useEffect, useState } from "react";
 import { fetchStudies } from "../api/studiesApi";
+import { RegistrationModal } from "../components/RegistrationModal";
 import { StudyCard } from "../components/StudyCard";
 import { StudyFilters } from "../components/StudyFilters";
-import { RegistrationModal } from "../components/RegistrationModal";
-import { useAuth } from "../hooks/useAuth";
-import { DEFAULT_FILTERS } from "../types";
 import type { Study, StudyFilterState } from "../types";
+import { DEFAULT_FILTERS } from "../types";
 
 const PAGE_SIZE = 12;
 
 export function ParticipantDashboard() {
-  const { user, logout } = useAuth();
   const [filters, setFilters] = useState<StudyFilterState>(DEFAULT_FILTERS);
   const [studies, setStudies] = useState<Study[]>([]);
   const [total, setTotal] = useState(0);
@@ -50,21 +48,6 @@ export function ParticipantDashboard() {
 
   return (
     <div className="min-h-screen bg-[#F6F5F1]">
-      <header className="border-b border-slate-200 bg-white">
-        <div className="mx-auto flex max-w-6xl items-center justify-between px-4 py-4">
-          <div>
-            <h1 className="text-lg font-semibold text-slate-900">Available studies</h1>
-            <p className="text-sm text-slate-500">Welcome back, {user?.name}</p>
-          </div>
-          <button
-            onClick={() => logout()}
-            className="text-sm font-medium text-slate-500 hover:text-slate-700"
-          >
-            Sign out
-          </button>
-        </div>
-      </header>
-
       <main className="mx-auto max-w-6xl px-4 py-6">
         <StudyFilters filters={filters} onChange={setFilters} />
 

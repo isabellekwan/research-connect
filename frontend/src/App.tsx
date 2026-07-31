@@ -6,6 +6,7 @@ import { AnalyticsDashboard } from "./features/analytics/AnalyticsDashboard";
 import CreateStudy from "./features/study_creator/CreateStudy";
 import { useAuth } from "./hooks/useAuth";
 import { Login } from "./pages/Login";
+import { LandingPage } from "./pages/LandingPage";
 import { ParticipantDashboard } from "./pages/ParticipantDashboard";
 import ProfilePage from "./pages/ProfilePage/ProfilePage";
 import { ResearcherDashboard } from "./pages/ResearcherDashboard";
@@ -17,11 +18,11 @@ function Root() {
   const { user, isLoading } = useAuth();
 
   if (isLoading) {
-    return <div>Loading ResearchConnect…</div>;
+    return <div className="min-h-screen animate-pulse bg-[#F6F5F1]" aria-label="Loading Research Connect" />;
   }
 
   if (!user) {
-    return <Navigate to="/login" replace />;
+    return <LandingPage />;
   }
 
   const role = user.role;

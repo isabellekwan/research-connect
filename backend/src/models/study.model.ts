@@ -3,6 +3,7 @@ import type {
   ApplicationStatus,
   AvailableTimeSlot,
   Booking,
+  BookingInvite,
   CalendarEvent,
   CreateStudyInput,
   ResearcherApplication,
@@ -221,6 +222,7 @@ export async function getAvailableTimeSlots(
 
 interface BookingResult {
   booking?: Booking;
+  invite?: BookingInvite;
   error?: "not_accepted" | "slot_not_found" | "already_booked" | "slot_full";
 }
 
@@ -288,8 +290,27 @@ export async function bookTimeSlot(
        RETURNING *`,
       [slotId, participantId]
     );
+    const { rows: inviteRows } = await client.query<BookingInvite>(
+      `SELECT
+         b.id AS booking_id,
+         s.title AS study_title,
+         ts.start_time,
+         ts.end_time,
+         s.location,
+         participant.name AS participant_name,
+         participant.email AS participant_email,
+         researcher.name AS researcher_name,
+         researcher.email AS researcher_email
+       FROM bookings b
+       JOIN time_slots ts ON ts.id = b.time_slot_id
+       JOIN studies s ON s.id = ts.study_id
+       JOIN users participant ON participant.id = b.participant_id
+       JOIN users researcher ON researcher.id = s.researcher_id
+       WHERE b.id = $1`,
+      [rows[0].id]
+    );
     await client.query("COMMIT");
-    return { booking: rows[0] };
+    return { booking: rows[0], invite: inviteRows[0] };
   } catch (error) {
     await client.query("ROLLBACK");
     throw error;

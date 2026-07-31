@@ -44,6 +44,9 @@ docker compose up --build
 
 The frontend lives in `frontend/src`. The backend API lives in `backend/src` and includes a starter health endpoint at `/api/health`.
 
+
+# Project Overview
+
 Our group plans to develop a web application called Research Connect, a centralized platform designed to streamline the recruitment of participants for academic research studies. Currently, many researchers rely on physical posters distributed across university campuses to advertise their studies. Interested students must then contact researchers directly via email to obtain additional information, determine their eligibility, and schedule participation times. This process can be time-consuming and inefficient for both researchers and participants.
 
 Research Connect aims to simplify this workflow by providing a single platform where researchers can post study opportunities, manage participant applications, and communicate with prospective participants. Students can browse available studies, review eligibility requirements, sign up for participation, and track their upcoming commitments through the platform. Additionally, the platform would incorporate participant history and attendance tracking features, enabling researchers to assess participant reliability based on past sign-up and participation records.
@@ -108,3 +111,28 @@ API style:
 Our Express backend will use standard RESTful API architecture. All client-server communication will rely on standard HTTP methods (GET, POST, PUT, DELETE) to execute CRUD operations. We will use JSON payloads for lightweight, consistent, and reliable data transfer.
 5.  Team Experience:
  We have chosen Stack A (Express + React) for this project because our team has prior experience with this stack, which reduces the onboarding time, ensuring rapid development and prototyping. 
+
+
+# API Documentation
+
+The backend publishes an OpenAPI (Swagger) specification covering every route (auth, analytics, profile, studies), generated from JSDoc comments placed directly above each route definition in `backend/src/routes/*.ts`. This will keep the documentation next to the code it describes, so it changes alongside the routes rather than living in a separate, easily-outdated document.
+
+With the backend running (`npm run dev:backend` or `docker compose up`):
+
+- The docs (Swagger UI): `http://localhost:4100/api-docs/` — you can browse every endpoint, and use "Try it out" to fire real requests against the running server. If you're logged into the app in the same browser, your session cookie is reused automatically, so authenticated endpoints work without extra setup.
+
+- Raw OpenAPI spec (JSON): `http://localhost:4100/api-docs.json` — importable into tools like Postman or Insomnia.
+
+Each endpoint documents its parameters, request body shape, all possible response codes, and the shared data schemas (`User`, `Study`, `AnalyticsOverview`, etc.) it uses, defined in `backend/src/config/openapi.ts`.
+
+## How to run the API docs and test cases:
+
+1. Go to `http://localhost:4100/api-docs/` in your browser while everything is running. You should see all 22 endpoints grouped by tag (Auth / Analytics / Profile / Studies).
+
+2. To test an endpoint that doesn't need authentication: expand `GET /auth/me` → click "Try it out" → "Execute". If you're not logged in anywhere, you should get `401 { "error": "Not authenticated" }`, this a check that the docs match real backend behavior.
+
+3. For testing authenticated endpoints: login into the actual app normally at `http://localhost:5174`. That sets a session cookie for host `localhost`. Since the cookies are scoped by host, not port, that same cookie is sent when you go back to `http://localhost:4100/api-docs/` in the same browser and click "Try it out". No manual "Authorize" step is needed, because Swagger's requests are same origin to the API itself, both on port 4100, and browsers attach cookies to same-origin requests by default.
+
+4. For testing role gates: try a researcher-only endpoint (e.g. /analytics/overview) while logged in as a participant account, you should get 403 { "error": "Requires role: researcher" }, confirming the docs' documented 403 case is accurate.
+
+5. To test a case where the study is not yours: pass a `studyId` that belongs to a different researcher into `/analytics/overview`, you should get `403 { "error": "You do not own this study" }`.

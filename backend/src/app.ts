@@ -3,7 +3,9 @@ import express, {
   type RequestHandler,
 } from "express";
 import session from "express-session";
+import swaggerUi from "swagger-ui-express";
 import passport from "./config/passport.js";
+import { swaggerSpec } from "./config/openapi.js";
 import analyticsRoutes from "./routes/analytics.routes.js";
 import authRoutes from "./routes/auth.routes.js";
 import profileRoutes from "./routes/profile.routes.js";
@@ -60,6 +62,10 @@ export function createApp(
   app.use("/studies", studiesRoutes);
   app.use("/analytics", analyticsRoutes);
   app.use("/users", profileRoutes);
+
+  // API docs (OpenAPI/Swagger UI), generated from JSDoc comments in ./routes/*.
+  app.use("/api-docs", swaggerUi.serve, swaggerUi.setup(swaggerSpec));
+  app.get("/api-docs.json", (_req, res) => res.json(swaggerSpec));
 
   return app;
 

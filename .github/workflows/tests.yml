@@ -1,0 +1,64 @@
+name: Backend tests
+
+on:
+  push:
+    branches:
+      - main
+
+  pull_request:
+    branches:
+      - main
+
+jobs:
+  backend-tests:
+    runs-on: ubuntu-latest
+
+    services:
+      postgres:
+        image: postgres:16-alpine
+
+        env:
+          POSTGRES_DB: researchconnect_test
+          POSTGRES_USER: researchconnect
+          POSTGRES_PASSWORD: testpassword
+
+        ports:
+          - 5433:5432
+
+        options: >-
+          --health-cmd="pg_isready -U researchconnect -d researchconnect_test"
+          --health-interval=5s
+          --health-timeout=5s
+          --health-retries=10
+
+    env:
+      NODE_ENV: test
+      PGHOST: localhost
+      PGPORT: 5433
+      PGUSER: researchconnect
+      PGPASSWORD: testpassword
+      PGDATABASE: researchconnect_test
+      PGSSL: "false"
+      SESSION_SECRET: test-session-secret
+      GOOGLE_CLIENT_ID: test-google-client
+      GOOGLE_CLIENT_SECRET: test-google-secret
+      GOOGLE_CALLBACK_URL: http://localhost:4100/auth/google/callback
+
+    steps:
+      - name: Check out repository
+        uses: actions/checkout@v4
+
+      - name: Set up Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: 20
+          cache: npm
+
+      - name: Install dependencies
+        run: npm ci
+
+      - name: Build backend
+        run: npm run build:backend
+
+      - name: Run backend tests
+        run: npm --workspace backend test

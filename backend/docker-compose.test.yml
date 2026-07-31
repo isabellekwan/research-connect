@@ -1,0 +1,16 @@
+services:
+  test-db:
+    image: postgres:16-alpine
+    environment:
+      POSTGRES_DB: researchconnect_test
+      POSTGRES_USER: researchconnect
+      POSTGRES_PASSWORD: testpassword
+    ports:
+      - "5433:5432"
+    healthcheck:
+      test:
+        - CMD-SHELL
+        - pg_isready -U researchconnect -d researchconnect_test
+      interval: 2s
+      timeout: 3s
+      retries: 15

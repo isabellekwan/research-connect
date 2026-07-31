@@ -50,23 +50,23 @@ export function StudyCard({ study, onApply, onBook }: StudyCardProps) {
           {study.compensation && (
             <div>
               <dt className="inline font-medium text-slate-600">Compensation: </dt>
-              <dd className="inline">${study.compensation}</dd>
+              <dd className="inline">{study.compensation} credits</dd>
             </div>
           )}
         </dl>
       </div>
 
       <div className="mt-4">
-        {study.application_status === "accepted" && !study.has_booking ? (
+        {study.application_status === "accepted" && !study.booking_status ? (
           <button
             onClick={() => onBook(study)}
             className="w-full rounded-md bg-[#1F6F6B] px-3 py-2 text-sm font-medium text-white hover:bg-[#195954]"
           >
             Choose a time
           </button>
-        ) : study.application_status === "accepted" && study.has_booking ? (
+        ) : study.application_status === "accepted" && study.booking_status ? (
           <span className="inline-block rounded-md border border-emerald-200 bg-emerald-50 px-3 py-1.5 text-xs font-medium text-emerald-700">
-            Session booked
+            {study.booking_status === "completed" ? "Completed" : "Session booked"}
           </span>
         ) : canContinue ? (
           <button
@@ -99,7 +99,7 @@ export function StudyCard({ study, onApply, onBook }: StudyCardProps) {
 function labelForStatus(status: Study["application_status"]) {
   switch (status) {
     case "eligible":
-      return "Eligible — ready to apply";
+      return "Eligible and ready to apply";
     case "ineligible":
       return "Not eligible";
     case "pending":

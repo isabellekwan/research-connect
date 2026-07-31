@@ -2,6 +2,7 @@ import { Router } from "express";
 import {
   bookTimeSlotHandler,
   checkEligibilityHandler,
+  completeBookingHandler,
   createStudyHandler,
   getCalendar,
   getCategories,
@@ -26,6 +27,7 @@ router.get("/calendar", isAuthenticated, getCalendar);
 router.get("/researcher",isAuthenticated,requireRole("researcher"),listResearcherStudies);  
 router.get("/applications/researcher", isAuthenticated, requireRole("researcher"), getResearcherApplications);
 router.patch("/applications/:applicationId", isAuthenticated, requireRole("researcher"), reviewApplicationHandler);
+router.patch("/bookings/:bookingId/complete", isAuthenticated, requireRole("researcher"), completeBookingHandler);
 router.get("/:id", isAuthenticated, requireRole("participant"), getStudy);
 router.get("/:id/time-slots", isAuthenticated, requireRole("participant"), listAvailableTimeSlotsHandler);
 router.post("/:id/time-slots/:slotId/book", isAuthenticated, requireRole("participant"), bookTimeSlotHandler);

@@ -32,6 +32,15 @@ export interface UpdateProfileInput {
   phone_number?: string | null;
 }
 
+export interface LedgerEntry {
+  id: string;
+  type: "credit" | "debit";
+  amount: string;
+  description: string | null;
+  created_at: string;
+  [key: string]: unknown;
+}
+
 export type StudyStatus = "draft" | "open" | "closed" | "archived";
 
 export interface Study {
@@ -52,7 +61,7 @@ export interface Study {
 export interface StudyWithResearcher extends Study {
   researcher_name: string;
   application_status?: ApplicationStatus | null; // populated per-viewer when listing
-  has_booking?: boolean;
+  booking_status?: Booking["status"] | null;
   [key: string]: unknown;
 }
 
@@ -130,6 +139,7 @@ export interface BookingInvite {
 }
 
 export interface CalendarBooking {
+  booking_id: string;
   participant_id: string;
   participant_name: string;
   participant_email: string;
@@ -146,6 +156,7 @@ export interface CalendarEvent {
   is_remote: boolean;
   capacity: number;
   booked_count: number;
+  booking_status?: Booking["status"];
   bookings: CalendarBooking[];
   [key: string]: unknown;
 }

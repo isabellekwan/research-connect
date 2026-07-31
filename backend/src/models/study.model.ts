@@ -131,14 +131,16 @@ export async function listStudiesForParticipant(
         s.*,
         u.name AS researcher_name,
         sa.status AS application_status,
-        EXISTS (
-          SELECT 1
+        (
+          SELECT b.status
           FROM bookings b
           JOIN time_slots booked_slot ON booked_slot.id = b.time_slot_id
           WHERE booked_slot.study_id = s.id
             AND b.participant_id = $${participantIdParamIndex}
-            AND b.status = 'confirmed'
-        ) AS has_booking
+            AND b.status <> 'cancelled'
+          ORDER BY b.status = 'completed' DESC
+          LIMIT 1
+        ) AS booking_status
      FROM studies s
      JOIN users u ON u.id = s.researcher_id
      LEFT JOIN study_applications sa
@@ -265,7 +267,7 @@ export async function bookTimeSlot(
        JOIN time_slots ts ON ts.id = b.time_slot_id
        WHERE ts.study_id = $1
          AND b.participant_id = $2
-         AND b.status = 'confirmed'`,
+         AND b.status <> 'cancelled'`,
       [studyId, participantId]
     );
     if (existing.rows[0]) {
@@ -446,6 +448,34 @@ export async function reviewStudyApplication(
   return rows[0] ?? null;
 }
 
+export async function completeBooking(bookingId: string, researcherId: string) {
+  const { rows } = await query<{ status: Booking["status"] }>(
+    `WITH target AS (
+       SELECT b.id, b.participant_id, b.status, s.title,
+              COALESCE(s.compensation, 0) AS compensation
+       FROM bookings b
+       JOIN time_slots ts ON ts.id = b.time_slot_id
+       JOIN studies s ON s.id = ts.study_id
+       WHERE b.id = $1 AND s.researcher_id = $2
+     ),
+     completed AS (
+       UPDATE bookings b SET status = 'completed'
+       FROM target t
+       WHERE b.id = t.id AND b.status = 'confirmed'
+     ),
+     credited AS (
+       INSERT INTO ledger_entries (user_id, booking_id, type, amount, description)
+       SELECT participant_id, id, 'credit', compensation, 'Completed ' || title
+       FROM target
+       WHERE status IN ('confirmed', 'completed')
+       ON CONFLICT (booking_id) DO NOTHING
+     )
+     SELECT status FROM target`,
+    [bookingId, researcherId]
+  );
+  return rows[0]?.status ?? null;
+}
+
 /**
  * Records that a participant viewed a study's detail page. Deduped per study/participant/day 
  * at the DB level, so repeated visits the same day don't inflate the count.
@@ -485,6 +515,7 @@ export async function listCalendarForParticipant(
        ts.end_time,
        s.location,
        s.is_remote,
+       b.status AS booking_status,
        ts.capacity,
        1 AS booked_count,
        '[]'::json AS bookings
@@ -517,6 +548,7 @@ export async function listCalendarForResearcher(
          json_agg(
            json_build_object(
              'participant_id', participant.id,
+             'booking_id', b.id,
              'participant_name', participant.name,
              'participant_email', participant.email,
              'status', b.status

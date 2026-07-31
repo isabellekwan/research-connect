@@ -1,5 +1,6 @@
 import type { Request, Response } from "express";
 import {
+    getLedgerEntries,
     getUserProfile,
     updateUserProfile
 } from "../models/profile.model.js";
@@ -9,7 +10,10 @@ export async function getMyProfile(
   req: Request,
   res: Response
 ) {
-  const profile = await getUserProfile(req.user!.id);
+  const [profile, ledgerEntries] = await Promise.all([
+    getUserProfile(req.user!.id),
+    getLedgerEntries(req.user!.id),
+  ]);
 
   if (!profile) {
     return res.status(404).json({
@@ -17,7 +21,7 @@ export async function getMyProfile(
     });
   }
 
-  return res.json({ user: profile });
+  return res.json({ user: profile, ledgerEntries });
 }
 
 export async function updateMyProfile(

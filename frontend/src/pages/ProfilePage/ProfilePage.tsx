@@ -1,16 +1,20 @@
 import { useEffect, useState } from "react";
 import { Link } from "react-router-dom";
 import { getMyProfile } from "../../api/profileApi";
-import type { UserProfile } from "../../types";
+import type { LedgerEntry, UserProfile } from "../../types";
 import UserDetail from "./components/UserDetail";
 
 function ProfilePage() {
   const [profile, setProfile] =
     useState<UserProfile>();
+  const [ledgerEntries, setLedgerEntries] = useState<LedgerEntry[]>([]);
 
   useEffect(() => {
     getMyProfile()
-      .then(({ user }) => setProfile(user))
+      .then(({ user, ledgerEntries }) => {
+        setProfile(user);
+        setLedgerEntries(ledgerEntries);
+      })
       .catch((error) => {
         console.error("Failed to load profile", error);
       });
@@ -45,7 +49,7 @@ function ProfilePage() {
           >
             ← Back to dashboard
           </Link>
-          <UserDetail profile={profile} onProfileUpdate={setProfile}/>
+          <UserDetail profile={profile} ledgerEntries={ledgerEntries} onProfileUpdate={setProfile}/>
         {/* <Ratings/> */}
         {/* <AttendanceHistory/> */}
     </div>

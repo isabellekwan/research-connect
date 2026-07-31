@@ -14,14 +14,15 @@ import { useState } from "react";
 import { useNavigate } from "react-router-dom";
 import { updateMyProfile } from "../../../api/profileApi";
 import { useAuth } from "../../../hooks/useAuth";
-import type { UserProfile } from "../../../types";
+import type { LedgerEntry, UserProfile } from "../../../types";
 
 interface userDetailProp{
   profile: UserProfile;
+  ledgerEntries: LedgerEntry[];
   onProfileUpdate : (profile: UserProfile) => void;
 }
 
-function UserDetail({profile, onProfileUpdate}: userDetailProp) {
+function UserDetail({profile, ledgerEntries, onProfileUpdate}: userDetailProp) {
   const { logout } = useAuth();
   const navigate = useNavigate();
   const [isSigningOut, setIsSigningOut] = useState(false);
@@ -431,6 +432,31 @@ function UserDetail({profile, onProfileUpdate}: userDetailProp) {
           </p>
         </div>
       </div>
+
+      {profile.role === "participant" && (
+        <div className="border-t border-slate-200 px-6 py-5">
+          <p className="text-sm font-medium text-slate-700">Credit history</p>
+          {ledgerEntries.length ? (
+            <div className="mt-3 divide-y divide-slate-100">
+              {ledgerEntries.map((entry) => (
+                <div key={entry.id} className="flex justify-between gap-4 py-2 text-sm">
+                  <div>
+                    <p className="text-slate-700">{entry.description || "Ledger entry"}</p>
+                    <p className="text-xs text-slate-400">
+                      {new Date(entry.created_at).toLocaleDateString()}
+                    </p>
+                  </div>
+                  <p className={entry.type === "credit" ? "text-emerald-700" : "text-red-600"}>
+                    {entry.type === "credit" ? "+" : "-"}{entry.amount} credits
+                  </p>
+                </div>
+              ))}
+            </div>
+          ) : (
+            <p className="mt-1 text-sm italic text-slate-400">No transactions yet</p>
+          )}
+        </div>
+      )}
 
       {/* Member since Section */}
       <div className="flex items-start gap-3 px-6 py-5">

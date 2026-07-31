@@ -126,7 +126,7 @@ export function StudyApplicationPage() {
               <div>
                 <dt className="font-medium text-slate-800">Compensation</dt>
                 <dd className="mt-1 text-slate-600">
-                  {study.compensation ? `$${study.compensation}` : "Not specified"}
+                  {study.compensation ? `${study.compensation} credits` : "Not specified"}
                 </dd>
               </div>
             </dl>

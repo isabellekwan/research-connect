@@ -20,6 +20,7 @@ import {
   saveApplicationResume,
   submitEligibleApplication,
 } from "../models/study.model.js";
+import { sendBookingInvite } from "../services/email.js";
 import type { StudyFilters, User } from "../types/index.js";
 
 const resumeBucketName = process.env.GCS_BUCKET_NAME;
@@ -250,6 +251,12 @@ export async function bookTimeSlotHandler(req: Request, res: Response) {
   }
   if (result.error === "slot_full") {
     return res.status(409).json({ error: "This session is full" });
+  }
+
+  if (result.invite) {
+    sendBookingInvite(result.invite).catch((error) =>
+      console.error("Failed to send booking invite", error)
+    );
   }
   res.status(201).json({ booking: result.booking });
 }

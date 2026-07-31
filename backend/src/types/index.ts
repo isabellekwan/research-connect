@@ -117,6 +117,18 @@ export interface Booking {
   [key: string]: unknown;
 }
 
+export interface BookingInvite {
+  booking_id: string;
+  study_title: string;
+  start_time: string;
+  end_time: string;
+  location: string | null;
+  participant_name: string;
+  participant_email: string;
+  researcher_name: string;
+  researcher_email: string;
+}
+
 export interface CalendarBooking {
   participant_id: string;
   participant_name: string;

@@ -4,6 +4,7 @@ import multer from "multer";
 import {
   bookTimeSlot,
   checkStudyEligibility,
+  completeBooking,
   createStudy,
   getApplicationForParticipant,
   getAvailableTimeSlots,
@@ -322,6 +323,13 @@ export async function reviewApplicationHandler(req: Request, res: Response) {
     return res.status(404).json({ error: "Pending application not found" });
   }
   res.json({ application });
+}
+
+export async function completeBookingHandler(req: Request, res: Response) {
+  const status = await completeBooking(req.params.bookingId as string, req.user!.id);
+  if (!status) return res.status(404).json({ error: "Booking not found" });
+  if (status === "cancelled") return res.status(409).json({ error: "Booking is cancelled" });
+  res.json({ status: "completed" });
 }
 
 export async function listResearcherStudies(req: Request, res: Response){

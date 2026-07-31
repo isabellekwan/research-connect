@@ -116,7 +116,7 @@ CREATE INDEX idx_chat_messages_study ON chat_messages(study_id);
 CREATE TABLE ledger_entries (
     id              UUID PRIMARY KEY DEFAULT gen_random_uuid(),
     user_id         UUID NOT NULL REFERENCES users(id) ON DELETE CASCADE,
-    booking_id      UUID REFERENCES bookings(id) ON DELETE SET NULL,
+    booking_id      UUID UNIQUE REFERENCES bookings(id) ON DELETE SET NULL,
     type            ledger_type NOT NULL,
     amount          NUMERIC(10, 2) NOT NULL,
     description     TEXT,

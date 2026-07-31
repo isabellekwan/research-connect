@@ -1,5 +1,6 @@
 import { query } from "../config/db.js";
 import type {
+    LedgerEntry,
     UpdateProfileInput,
     UserProfile,
 } from "../types/index.js";
@@ -32,6 +33,17 @@ export async function getUserProfile(id: string): Promise<UserProfile | null> {
       GROUP BY u.id
     `, [id]);
   return rows[0] ?? null;
+}
+
+export async function getLedgerEntries(userId: string): Promise<LedgerEntry[]> {
+  const { rows } = await query<LedgerEntry>(
+    `SELECT id, type, amount, description, created_at
+     FROM ledger_entries
+     WHERE user_id = $1
+     ORDER BY created_at DESC`,
+    [userId]
+  );
+  return rows;
 }
 
 export async function updateUserProfile(

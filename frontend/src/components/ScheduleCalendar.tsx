@@ -1,6 +1,6 @@
 import { ChevronLeft, ChevronRight } from "lucide-react";
 import { useEffect, useMemo, useState } from "react";
-import { fetchCalendar } from "../api/studiesApi";
+import { completeBooking, fetchCalendar } from "../api/studiesApi";
 import type { CalendarEvent, UserRole } from "../types";
 
 interface ScheduleCalendarProps {
@@ -28,6 +28,7 @@ export function ScheduleCalendar({ role }: ScheduleCalendarProps) {
   const [events, setEvents] = useState<CalendarEvent[]>([]);
   const [isLoading, setIsLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
+  const [completing, setCompleting] = useState<string | null>(null);
 
   useEffect(() => {
     fetchCalendar()
@@ -61,6 +62,25 @@ export function ScheduleCalendar({ role }: ScheduleCalendarProps) {
 
   function changeMonth(offset: number) {
     setMonth((current) => new Date(current.getFullYear(), current.getMonth() + offset, 1));
+  }
+
+  async function handleComplete(bookingId: string) {
+    setCompleting(bookingId);
+    try {
+      await completeBooking(bookingId);
+      setEvents((current) =>
+        current.map((event) => ({
+          ...event,
+          bookings: event.bookings.map((booking) =>
+            booking.booking_id === bookingId ? { ...booking, status: "completed" } : booking
+          ),
+        }))
+      );
+    } catch {
+      setError("Couldn't complete booking.");
+    } finally {
+      setCompleting(null);
+    }
   }
 
   return (
@@ -139,7 +159,7 @@ export function ScheduleCalendar({ role }: ScheduleCalendarProps) {
                   {hasEvents && (
                     <div
                       role="tooltip"
-                      className={`pointer-events-none absolute top-full z-20 mt-1 hidden w-64 rounded-lg border border-slate-200 bg-white p-3 text-left shadow-lg group-hover:block group-focus-within:block ${
+                      className={`absolute top-full z-20 mt-1 hidden w-64 rounded-lg border border-slate-200 bg-white p-3 text-left shadow-lg group-hover:block group-focus-within:block ${
                         alignTooltipRight ? "right-0" : "left-0"
                       }`}
                     >
@@ -156,14 +176,33 @@ export function ScheduleCalendar({ role }: ScheduleCalendarProps) {
                             <p className="font-semibold text-[#195954]">{event.study_title}</p>
                             <p>{formatTime(event.start_time)} - {formatTime(event.end_time)}</p>
                             <p>{event.is_remote ? "Remote" : event.location || "Location not set"}</p>
+                            {role === "participant" && (
+                              <p className={event.booking_status === "completed" ? "font-medium text-emerald-700" : ""}>
+                                {event.booking_status === "completed" ? "Completed" : "Session booked"}
+                              </p>
+                            )}
                             {role === "researcher" && (
                               <>
                                 <p className="font-medium text-slate-700">
                                   {event.booked_count}/{event.capacity} booked
                                 </p>
-                                {event.bookings.length > 0 && (
-                                  <p>{event.bookings.map((booking) => booking.participant_name).join(", ")}</p>
-                                )}
+                                {event.bookings.map((booking) => (
+                                  <div key={booking.booking_id} className="mt-1 flex items-center justify-between gap-2">
+                                    <span>{booking.participant_name}</span>
+                                    {booking.status === "confirmed" ? (
+                                      <button
+                                        type="button"
+                                        disabled={completing === booking.booking_id}
+                                        onClick={() => handleComplete(booking.booking_id)}
+                                        className="rounded bg-[#1F6F6B] px-2 py-1 text-[11px] text-white disabled:opacity-50"
+                                      >
+                                        {completing === booking.booking_id ? "Saving…" : "Complete"}
+                                      </button>
+                                    ) : (
+                                      <span className="text-emerald-700">Completed</span>
+                                    )}
+                                  </div>
+                                ))}
                               </>
                             )}
                           </div>

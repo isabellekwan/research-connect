@@ -28,6 +28,14 @@ export interface UpdateProfileInput {
   phone_number?: string | null;
 }
 
+export interface LedgerEntry {
+  id: string;
+  type: "credit" | "debit";
+  amount: string;
+  description: string | null;
+  created_at: string;
+}
+
 export type StudyStatus = "draft" | "open" | "closed" | "archived";
 export type ApplicationStatus =
   | "eligible"
@@ -49,7 +57,7 @@ export interface Study {
   compensation: string | null;
   status: StudyStatus;
   application_status?: ApplicationStatus | null;
-  has_booking?: boolean;
+  booking_status?: "confirmed" | "completed" | null;
   created_at: string;
 }
 
@@ -92,6 +100,7 @@ export interface TimeSlot {
 }
 
 export interface CalendarBooking {
+  booking_id: string;
   participant_id: string;
   participant_name: string;
   participant_email: string;
@@ -108,6 +117,7 @@ export interface CalendarEvent {
   is_remote: boolean;
   capacity: number;
   booked_count: number;
+  booking_status?: "confirmed" | "completed";
   bookings: CalendarBooking[];
 }
 

@@ -34,6 +34,12 @@ export function fetchCalendar() {
   return apiRequest<{ events: CalendarEvent[] }>("/studies/calendar");
 }
 
+export function completeBooking(bookingId: string) {
+  return apiRequest<{ status: "completed" }>(`/studies/bookings/${bookingId}/complete`, {
+    method: "PATCH",
+  });
+}
+
 export function createStudy(payload: CreateStudyPayload) {
   return apiRequest<{ study: Study; timeSlots: TimeSlot[] }>("/studies", {
     method: "POST",

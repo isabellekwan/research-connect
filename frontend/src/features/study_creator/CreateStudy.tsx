@@ -133,7 +133,7 @@ function CreateStudy() {
         <label className="flex flex-col text-sm font-medium text-slate-700">Title<input className={inputClasses} type="text" value={title} onChange={(e) => setTitle(e.target.value)} required /></label>
         <label className="flex flex-col text-sm font-medium text-slate-700">Description<textarea className={`${inputClasses} min-h-32 resize-y`} value={description} onChange={(e) => setDescription(e.target.value)} required /></label>
         <label className="flex flex-col text-sm font-medium text-slate-700">Category<input className={inputClasses} type="text" value={category} onChange={(e) => setCategory(e.target.value)} required /></label>
-        <label className="flex flex-col text-sm font-medium text-slate-700">Compensation ($)<input className={inputClasses} type="number" min="0" step="0.01" value={compensation} onChange={(e) => setCompensation(e.target.value)} /></label>
+        <label className="flex flex-col text-sm font-medium text-slate-700">Compensation (credits)<input className={inputClasses} type="number" min="0" step="0.01" value={compensation} onChange={(e) => setCompensation(e.target.value)} /></label>
         <label className="flex items-center gap-2 text-sm font-medium text-slate-700"><input className="h-4 w-4 accent-[#1F6F6B]" type="checkbox" checked={isRemote} onChange={(e) => setIsRemote(e.target.checked)} /> Remote study</label>
         {!isRemote && <label className="flex flex-col text-sm font-medium text-slate-700">Location<input className={inputClasses} type="text" value={location} onChange={(e) => setLocation(e.target.value)} /></label>}
 

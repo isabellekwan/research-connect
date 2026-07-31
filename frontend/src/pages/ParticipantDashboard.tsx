@@ -1,4 +1,5 @@
 import { useEffect, useState } from "react";
+import { Compass } from "lucide-react";
 import { useNavigate } from "react-router-dom";
 import { fetchStudies } from "../api/studiesApi";
 import { BookingModal } from "../components/BookingModal";
@@ -10,6 +11,14 @@ import type { Study, StudyFilterState } from "../types";
 import { DEFAULT_FILTERS } from "../types";
 
 const PAGE_SIZE = 12;
+type StudyTab = "eligible" | "booked" | "completed" | "rejected";
+
+const STUDY_TABS: { value: StudyTab; label: string }[] = [
+  { value: "eligible", label: "Eligible" },
+  { value: "booked", label: "Booked" },
+  { value: "completed", label: "Completed" },
+  { value: "rejected", label: "Rejected" },
+];
 
 export function ParticipantDashboard() {
   const navigate = useNavigate();
@@ -20,6 +29,7 @@ export function ParticipantDashboard() {
   const [error, setError] = useState<string | null>(null);
   const [applyingTo, setApplyingTo] = useState<Study | null>(null);
   const [bookingStudy, setBookingStudy] = useState<Study | null>(null);
+  const [studyTab, setStudyTab] = useState<StudyTab>("completed");
 
   useEffect(() => {
     let cancelled = false;
@@ -50,8 +60,19 @@ export function ParticipantDashboard() {
   }
 
   const totalPages = Math.max(1, Math.ceil(total / PAGE_SIZE));
-  const eligibleStudies = studies.filter((study) => study.application_status === "eligible");
-  const otherStudies = studies.filter((study) => study.application_status !== "eligible");
+  const tabStudies = studies.filter((study) => {
+    if (studyTab === "booked") return study.booking_status === "confirmed";
+    if (studyTab === "completed") return study.booking_status === "completed";
+    if (studyTab === "eligible") return study.application_status === "eligible";
+    return study.application_status === "ineligible" || study.application_status === "rejected";
+  });
+  const discoverStudies = studies.filter(
+    (study) =>
+      !study.booking_status &&
+      study.application_status !== "eligible" &&
+      study.application_status !== "ineligible" &&
+      study.application_status !== "rejected"
+  );
 
   function handleStudyAction(study: Study) {
     if (study.application_status === "eligible") {
@@ -74,24 +95,13 @@ export function ParticipantDashboard() {
               </p>
             )}
 
-            {!isLoading && eligibleStudies.length > 0 && (
-              <section className="mb-8">
-                <div className="mb-3">
-                  <h2 className="text-lg font-semibold text-slate-900">Eligible studies</h2>
-                  <p className="text-sm text-slate-500">
-                    You passed screening. Review the details and submit your application.
-                  </p>
-                </div>
-                <div className="grid grid-cols-1 gap-4 sm:grid-cols-2">
-                  {eligibleStudies.map((study) => (
-                    <StudyCard key={study.id} study={study} onApply={handleStudyAction} onBook={setBookingStudy} />
-                  ))}
-                </div>
-              </section>
-            )}
-
-            {!isLoading && otherStudies.length > 0 && (
-              <h2 className="mb-3 text-lg font-semibold text-slate-900">Discover studies</h2>
+            {!isLoading && (
+              <div className="mb-3">
+                <h2 className="text-lg font-semibold text-slate-900">Discover studies</h2>
+                <p className="text-sm text-slate-500">
+                  Find a new study that matches your interests.
+                </p>
+              </div>
             )}
 
             {isLoading ? (
@@ -100,20 +110,27 @@ export function ParticipantDashboard() {
                   <div key={i} className="h-48 animate-pulse rounded-lg bg-slate-200/60" />
                 ))}
               </div>
-            ) : studies.length === 0 ? (
-              <div className="rounded-lg border border-dashed border-slate-300 bg-white p-12 text-center">
-                <p className="font-medium text-slate-700">No studies match your filters</p>
-                <p className="mt-1 text-sm text-slate-500">
-                  Try widening your search or checking back later for new postings.
-                </p>
-              </div>
-            ) : otherStudies.length > 0 ? (
+            ) : discoverStudies.length > 0 ? (
               <div className="grid grid-cols-1 gap-4 sm:grid-cols-2">
-                {otherStudies.map((study) => (
+                {discoverStudies.map((study) => (
                   <StudyCard key={study.id} study={study} onApply={handleStudyAction} onBook={setBookingStudy} />
                 ))}
               </div>
-            ) : null}
+            ) : (
+              <div className="flex min-h-72 items-center justify-center rounded-xl border border-slate-200 bg-white px-8 py-12 text-center shadow-sm">
+                <div className="max-w-sm">
+                  <div className="mx-auto flex h-12 w-12 items-center justify-center rounded-xl bg-[#1F6F6B]/10 text-[#1F6F6B]">
+                    <Compass className="h-6 w-6" />
+                  </div>
+                  <h3 className="mt-4 font-semibold text-slate-800">
+                    No new studies to discover
+                  </h3>
+                  <p className="mt-2 text-sm leading-6 text-slate-500">
+                    Adjust the filters above or check back later. Your existing studies are organized beside the calendar.
+                  </p>
+                </div>
+              </div>
+            )}
 
             {totalPages > 1 && (
               <div className="mt-6 flex items-center justify-center gap-3">
@@ -138,8 +155,57 @@ export function ParticipantDashboard() {
             )}
           </div>
 
-          <aside className="order-first lg:order-none">
+          <aside className="order-first space-y-4 lg:order-none">
             <ScheduleCalendar role="participant" />
+            <section className="rounded-xl border border-slate-200 bg-white p-4 shadow-sm">
+              <div className="mb-3">
+                <h2 className="text-sm font-semibold text-slate-900">My studies</h2>
+                <p className="text-xs text-slate-500">Track your participation</p>
+              </div>
+              <div className="grid grid-cols-4 border-b border-slate-200">
+                {STUDY_TABS.map((tab) => (
+                  <button
+                    key={tab.value}
+                    type="button"
+                    onClick={() => setStudyTab(tab.value)}
+                    className={`border-b-2 px-1 pb-2 text-xs font-medium ${
+                      studyTab === tab.value
+                        ? "border-[#1F6F6B] text-[#1F6F6B]"
+                        : "border-transparent text-slate-500"
+                    }`}
+                  >
+                    {tab.label}
+                  </button>
+                ))}
+              </div>
+              <div className="mt-3 space-y-2">
+                {tabStudies.length ? (
+                  tabStudies.map((study) => (
+                    <button
+                      key={study.id}
+                      type="button"
+                      disabled={studyTab !== "eligible"}
+                      onClick={() => handleStudyAction(study)}
+                      className="w-full rounded-md bg-slate-50 px-3 py-2 text-left disabled:cursor-default"
+                    >
+                      <p className="text-sm font-medium text-slate-800">{study.title}</p>
+                      {study.compensation && (
+                        <p className="text-xs text-slate-500">{study.compensation} credits</p>
+                      )}
+                    </button>
+                  ))
+                ) : (
+                  <div className="px-3 py-6 text-center">
+                    <p className="text-sm font-medium text-slate-500">
+                      No {studyTab} studies
+                    </p>
+                    <p className="mt-1 text-xs leading-5 text-slate-400">
+                      They will appear here when their status changes.
+                    </p>
+                  </div>
+                )}
+              </div>
+            </section>
           </aside>
         </div>
       </main>
